@@ -10,20 +10,6 @@ Route::get('/', function (ProductService $productService) {
     return view('landing', compact('products'));
 })->name('landing');
 
-Route::get('/create-admin-temp', function () {
-    try {
-        \App\Models\User::create([
-            'name' => 'Super Admin',
-            'email' => 'admin@gmail.com',
-            'role' => 'admin',
-            'password' => bcrypt('password123')
-        ]);
-        return 'Admin user created successfully! Login with admin@gmail.com / password123';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
-
 Route::middleware('auth')->group(function () {
     Route::get('/checkout/{id}', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/pay', [CheckoutController::class, 'pay'])->name('checkout.pay');
