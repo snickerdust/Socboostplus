@@ -13,11 +13,17 @@ class FirebaseService
 
     public function __construct()
     {
-        $factory = (new Factory)
-            //Path to service account file
-            ->withServiceAccount(storage_path('app/firebase/firebase_credentials.json'))
-            //Change This to firebase realtime database path
-            ->withDatabaseUri('https://socboost-721eb-default-rtdb.asia-southeast1.firebasedatabase.app/');
+        $factory = (new Factory);
+
+        // Check for JSON credentials in ENV (Railway/Production)
+        if (env('FIREBASE_CREDENTIALS')) {
+            $factory = $factory->withServiceAccount(json_decode(env('FIREBASE_CREDENTIALS'), true));
+        } else {
+            // Fallback to local file (Development)
+            $factory = $factory->withServiceAccount(storage_path('app/firebase/firebase_credentials.json'));
+        }
+
+        $factory = $factory->withDatabaseUri(env('FIREBASE_DATABASE_<b>URL</b>', 'https://socboost-721eb-default-rtdb.asia-southeast1.firebasedatabase.app/'));
 
         $this->database = $factory->createDatabase();
         $this->messaging = $factory->createMessaging();
