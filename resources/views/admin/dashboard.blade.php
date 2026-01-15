@@ -97,10 +97,16 @@
                     });
 
                     if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        console.error('Send Error:', errorData); // Log for debugging
+                        
                         // Revert on failure
                         this.messages.pop(); 
                         this.replyMessage = currentMsg;
-                        alert('Failed to send. Please try again.');
+                        
+                        // Show specific message if available
+                        const errMsg = errorData.message || 'Failed to send. Please try again.';
+                        alert(errMsg);
                     } else {
                         // Force refresh immediately to sync timestamps/IDs
                         this.fetchConversation(this.activeChat);
@@ -309,17 +315,19 @@
                     </div>
                     <div class="flex-1 overflow-y-auto">
                         <template x-for="(thread, userId) in allChats" :key="userId">
-                             <div class="p-4 border-b border-gray-700 hover:bg-indigo-900/20 cursor-pointer transition group"
-                                  :class="activeChat === userId ? 'bg-indigo-900/30' : ''"
-                                  @click="selectChat(userId)">
-                                 <div class="flex justify-between items-start mb-1">
-                                     <span class="font-bold text-sm text-white group-hover:text-indigo-300 transition" x-text="thread.meta?.user_name || 'User'"></span>
-                                 </div>
-                                 <p class="text-xs text-gray-400 truncate" x-text="thread.meta?.last_message || 'No messages'"></p>
-                                 <template x-if="thread.meta?.unread_admin">
-                                     <span class="inline-block mt-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                                 </template>
-                             </div>
+                            <template x-if="thread">
+                                <div class="p-4 border-b border-gray-700 hover:bg-indigo-900/20 cursor-pointer transition group"
+                                     :class="activeChat === userId ? 'bg-indigo-900/30' : ''"
+                                     @click="selectChat(userId)">
+                                     <div class="flex justify-between items-start mb-1">
+                                         <span class="font-bold text-sm text-white group-hover:text-indigo-300 transition" x-text="thread.meta?.user_name || 'User'"></span>
+                                     </div>
+                                     <p class="text-xs text-gray-400 truncate" x-text="thread.meta?.last_message || 'No messages'"></p>
+                                     <template x-if="thread.meta?.unread_admin">
+                                         <span class="inline-block mt-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                                     </template>
+                                </div>
+                            </template>
                         </template>
                     </div>
                 </div>

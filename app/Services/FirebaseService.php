@@ -23,7 +23,18 @@ class FirebaseService
             $factory = $factory->withServiceAccount(storage_path('app/firebase/firebase_credentials.json'));
         }
 
-        $factory = $factory->withDatabaseUri(env('FIREBASE_DATABASE_<b>URL</b>', 'https://socboost-721eb-default-rtdb.asia-southeast1.firebasedatabase.app/'));
+        // Sanitize URL (remove quotes if present)
+        $dbUrl = trim(env('FIREBASE_DATABASE_URL', 'https://socboost-721eb-default-rtdb.asia-southeast1.firebasedatabase.app/'), '"\'');
+        
+        $factory = $factory->withDatabaseUri($dbUrl);
+
+        // Fix for Connection/SSL issues
+        // We use supported timeout methods (HttpClientOptions in this version doesn't support generic Guzzle config)
+        $options = \Kreait\Firebase\Http\HttpClientOptions::default()
+            ->withConnectTimeout(10)
+            ->withTimeout(30); // Total timeout
+
+        $factory = $factory->withHttpClientOptions($options);
 
         $this->database = $factory->createDatabase();
         $this->messaging = $factory->createMessaging();

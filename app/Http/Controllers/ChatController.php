@@ -24,7 +24,7 @@ class ChatController extends Controller
     {
         $validated = $request->validate([
             'message' => 'required|string',
-            'target_user_id' => 'nullable|string', // Only needed if admin sending to user
+            'target_user_id' => 'nullable', // Can be int or string
         ]);
 
         $sender = auth()->user();
@@ -46,36 +46,47 @@ class ChatController extends Controller
             'created_at' => now()->toIso8601String() // Readable
         ];
 
-        // Push to messages list
-        $this->firebase->getReference("chats/{$threadId}/messages")->push($newMessage);
-        
-        // Update metadata for inbox listing
-        $metaUpdate = [
-            'last_message' => $validated['message'],
-            'last_updated' => now()->timestamp,
-            'unread_admin' => $isUser ? true : false,
-            'unread_user' => !$isUser ? true : false,
-        ];
+        try {
+            // Push to messages list
+            $this->firebase->getReference("chats/{$threadId}/messages")->push($newMessage);
+            
+            // Update metadata for inbox listing
+            $metaUpdate = [
+                'last_message' => $validated['message'],
+                'last_updated' => now()->timestamp,
+                'unread_admin' => $isUser ? true : false,
+                'unread_user' => !$isUser ? true : false,
+            ];
 
-        // Only set user_name if the user is sending, to avoid overwriting with "User"
-        if ($isUser) {
-            $metaUpdate['user_name'] = $sender->name;
-            $metaUpdate['user_email'] = $sender->email; 
+            // Only set user_name if the user is sending, to avoid overwriting with "User"
+            if ($isUser) {
+                $metaUpdate['user_name'] = $sender->name;
+                $metaUpdate['user_email'] = $sender->email; 
+            }
+
+            $this->firebase->getReference("chats/{$threadId}/meta")->update($metaUpdate);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Message sent',
+                    'data' => $newMessage
+                ]);
+            }
+
+            return back()->with('success', 'Message sent');
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Firebase Chat Error: ' . $e->getMessage());
+            
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to send to Firebase: ' . $e->getMessage()
+                ], 500);
+            }
+            return back()->with('error', 'Failed to send message.');
         }
-
-        $this->firebase->getReference("chats/{$threadId}/meta")->update($metaUpdate);
-
-        $this->firebase->getReference("chats/{$threadId}/meta")->update($metaUpdate);
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Message sent',
-                'data' => $newMessage
-            ]);
-        }
-
-        return back()->with('success', 'Message sent');
     }
     public function fetchMessages()
     {
