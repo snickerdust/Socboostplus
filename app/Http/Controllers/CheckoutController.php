@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Services\ProductService;
 use Illuminate\Http\Request;
+use Firebase\JWT\JWT;
+use GuzzleHttp\Client;
+use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -17,8 +20,14 @@ class CheckoutController extends Controller
         $this->firebase = $firebaseService->getDatabase();
     }
 
-    public function index(Request $request, string $id)
+    public function index(Request $request)
     {
+        $id = $request->input('id');
+
+        if (!$id) {
+            abort(404, 'Product identifier missing');
+        }
+
         // Parse ID format: platform-category-index
         // Example: instagram-followers-2
         $parts = explode('-', $id);
@@ -28,6 +37,16 @@ class CheckoutController extends Controller
         }
 
         [$platform, $category, $index] = $parts;
+
+        // Logic adjustment: If category is 'premium', map to standard + premium flag
+        $quality = $request->input('quality', 'standard'); // Default or from URL
+
+        if (str_ends_with($category, '_premium')) {
+            $category = str_replace('_premium', '', $category);
+            $quality = 'premium';
+            // Reconstruct ID to point to standard product
+            $id = $platform . '-' . $category . '-' . $index;
+        }
         
         $product = $this->productService->getProduct($platform, $category, (int)$index);
 
@@ -37,8 +56,9 @@ class CheckoutController extends Controller
 
         // Get ALL products for this platform, grouped by category
         // This allows the user to switch to "Instagram Likes" from "Instagram Followers"
-        // Flatten products for JS usage
         $allPlatformProducts = $this->productService->getAllProducts()[$platform] ?? [];
+        $allProducts = $this->productService->getAllProducts();
+
         $flatProducts = [];
         foreach ($allPlatformProducts as $cat => $items) {
             foreach ($items as $idx => $item) {
@@ -79,11 +99,14 @@ class CheckoutController extends Controller
             'product' => $product,
             'flatProducts' => $flatProducts,
             'allPlatformProducts' => $allPlatformProducts,
+            'allProducts' => $allProducts,
             'offers' => $offers,
             'id' => $id,
             'platform' => $platform,
-            'category' => $category
+            'category' => $category,
+            'initialQuality' => $quality
         ]);
+
     }
 
     public function pay(Request $request)
@@ -95,56 +118,79 @@ class CheckoutController extends Controller
             'total_price' => 'required|numeric',
         ]);
 
-        // Create Order ID
         $orderId = 'ORD-' . strtoupper(uniqid());
 
         try {
-            // Cryptomus Integration
-            $merchantId = env('CRYPTOMUS_MERCHANT_ID');
-            $paymentKey = env('CRYPTOMUS_PAYMENT_KEY');
-
-            if (!$merchantId || !$paymentKey) {
-                throw new \Exception('Cryptomus credentials not configured.');
+            // --- COINBASE COMMERCE API (Simple Key) ---
+            $apiKey = env('COINBASE_API_KEY');
+            if (!$apiKey) {
+                throw new \Exception('Coinbase Commerce API Key not set in .env');
             }
 
-            $client = new \GuzzleHttp\Client();
-
-            // Prepare payload
-            $data = [
-                'amount' => (string) $request->total_price,
-                'currency' => 'USD',
-                'order_id' => $orderId,
-                'url_return' => route('dashboard'),
-                'url_callback' => route('api.payment.callback'), // We'll need to define this route later or leave it for now
-                'is_payment_multiple' => false,
-                'lifetime' => 3600,
-                'to_currency' => 'USDT' // Optional: suggest paying in USDT, but user can choose others
-            ];
-
-            // Generate Signature
-            // Sign = md5(base64_encode(json_encode($data, JSON_UNESCAPED_UNICODE)) . $apiKey)
-            $payload = json_encode($data, JSON_UNESCAPED_UNICODE);
-            $sign = md5(base64_encode($payload) . $paymentKey);
-
-            $response = $client->post('https://api.cryptomus.com/v1/payment', [
-                'headers' => [
-                    'merchant' => $merchantId,
-                    'sign' => $sign,
-                    'Content-Type' => 'application/json'
-                ],
-                'body' => $payload,
-                'verify' => false, // Keep for local dev
+            $client = new Client([
+                'timeout'  => 30.0,
+                'force_ip_resolve' => 'v4', // Force IPv4 to avoid IPv6 timeouts
             ]);
 
-            $body = json_decode($response->getBody(), true);
+            $baseUrl = 'https://api.commerce.coinbase.com/charges';
+            
+            $apiBody = [
+                'name' => 'Order ' . $orderId,
+                'description' => 'Service for ' . $request->username,
+                'pricing_type' => 'fixed_price',
+                'local_price' => [
+                    'amount' => strval($request->total_price),
+                    'currency' => 'USD',
+                ],
+                'metadata' => [
+                    'order_id' => $orderId,
+                    'user_id' => auth()->id() ?? 'guest',
+                ],
+                'redirect_url' => route('dashboard'), // Success redirect
+                'cancel_url' => route('checkout', ['id' => $request->product_id]),
+            ];
 
-            if (!isset($body['result'])) {
-                 throw new \Exception('Invalid Cryptomus Response: ' . $response->getBody());
+            \Illuminate\Support\Facades\Log::info('Creating Coinbase Charge', ['body' => $apiBody]);
+
+            $response = $client->post($baseUrl, [
+                'headers' => [
+                    'X-CC-Api-Key' => $apiKey,
+                    'X-CC-Version' => '2018-03-22',
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+                'json' => $apiBody,
+                'http_errors' => false,
+                'verify' => false, 
+                'force_ip_resolve' => 'v4',
+            ]);
+
+            // --- RESPONSE HANDLING ---
+            $bodyStr = (string)$response->getBody();
+            \Illuminate\Support\Facades\Log::info('Coinbase Response: ' . $bodyStr);
+            
+            $result = json_decode($bodyStr, true);
+
+            if ($response->getStatusCode() >= 400) {
+                 \Illuminate\Support\Facades\Log::error('Coinbase API Error: ' . $bodyStr);
+                 throw new \Exception('Coinbase API returned error: ' . ($result['error']['message'] ?? $response->getReasonPhrase()));
             }
+            
+            // Normalize result (Commerce API wraps in 'data', CDP might be root or 'data')
+            $data = $result['data'] ?? $result;
 
-            $result = $body['result'];
-            $paymentUrl = $result['url'];
-            $uuid = $result['uuid'];
+            if (isset($data['hosted_url'])) {
+                 $paymentUrl = $data['hosted_url'];
+                 $coinbaseId = $data['id'] ?? null;
+            } elseif (isset($data['admin_hosted_url'])) {
+                 $paymentUrl = $data['admin_hosted_url'];
+                 $coinbaseId = $data['id'] ?? null;
+            } elseif (isset($data['url'])) {
+                $paymentUrl = $data['url'];
+            } else {
+                 \Illuminate\Support\Facades\Log::error('Coinbase API Unknown Response: ' . $bodyStr);
+                 throw new \Exception('Could not retrieve payment URL from Coinbase.');
+            }
 
             // Save order to Firebase
             $this->firebase->getReference('orders/' . $orderId)->set([
@@ -154,9 +200,9 @@ class CheckoutController extends Controller
                 'product_id' => $request->product_id,
                 'total_price_usd' => $request->total_price,
                 'status' => 'pending_payment',
-                'payment_gateway' => 'cryptomus',
-                'cryptomus_uuid' => $uuid,
-                'cryptomus_url' => $paymentUrl,
+                'payment_gateway' => 'coinbase',
+                'coinbase_link_id' => $coinbaseId,
+                'payment_url' => $paymentUrl,
                 'created_at' => now()->toIso8601String(),
                 'upsells' => [
                     'quality' => $request->input('upsell_quality', 'essential'),
@@ -169,8 +215,9 @@ class CheckoutController extends Controller
             return redirect()->away($paymentUrl);
 
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Cryptomus Payment Error: ' . $e->getMessage());
-            return back()->withErrors(['payment' => 'Payment initiation failed. Please try again later.']);
+            \Illuminate\Support\Facades\Log::error('Coinbase Payment Error: ' . $e->getMessage());
+            // Show error to user
+            return back()->withErrors(['payment' => 'Payment initiation failed: ' . $e->getMessage()]);
         }
     }
 }

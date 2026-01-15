@@ -1,349 +1,493 @@
-<x-layouts.app>
+<html class="scroll-smooth" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SocBoost+ | Secure Checkout</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#000000",
+                        "light-bg": "#FFFFFF",
+                        "section-bg": "#F8F9FB",
+                        "text-charcoal": "#1A1A1E",
+                        "text-muted": "#64748B",
+                        accent: {
+                            pink: "#FE2C55",
+                            cyan: "#25F4EE",
+                            purple: "#A259FF"
+                        }
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        display: ["Instrument Serif", "serif"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-light-bg text-text-charcoal antialiased;
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .vibrant-gradient {
+            background: linear-gradient(135deg, #FE2C55 0%, #A259FF 50%, #25F4EE 100%);
+        }
+        .selected-gradient-border {
+            position: relative;
+            background: #FFFFFF;
+            border-radius: 12px;
+        }
+        .selected-gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            z-index: -1;
+            background: linear-gradient(135deg, #FE2C55, #A259FF, #25F4EE);
+            border-radius: 14px;
+        }
+    </style>
+</head>
+<body class="selection:bg-accent-pink/20"
+      x-data="checkoutApp({
+          initialId: '{{ $id }}',
+          initialPlatform: '{{ $platform }}',
+          initialCategory: '{{ $category }}',
+          initialQuality: '{{ $initialQuality }}',
+          allProducts: {{ json_encode($allProducts) }},
+          offers: {{ json_encode($offers) }}
+      })">
 
-    {{-- Error Handling Display --}}
-    @if ($errors->any())
-        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 fixed top-20 right-4 z-50 shadow-lg" role="alert">
-            <p class="font-bold">Please fix the following errors:</p>
-            <ul class="list-disc pl-5">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <span class="text-xl font-bold tracking-tighter text-text-charcoal">SocBoost<span class="text-accent-pink">+</span></span>
         </div>
-    @endif
-
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12" 
-         x-data="checkoutApp({
-            initialId: '{{ $id }}',
-            products: {{ json_encode($flatProducts) }},
-            offers: {{ json_encode($offers) }}
-         })">
-        
-        <div class="max-w-7xl mx-auto px-6">
-            {{-- Breadcrumbs or Back Link --}}
-            <a href="{{ route('landing') }}" class="inline-flex items-center text-gray-500 hover:text-indigo-600 mb-8 transition">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        <div>
+            <a class="text-text-muted hover:text-text-charcoal transition-colors flex items-center gap-2 text-sm font-medium" href="{{ route('landing') }}">
+                <span class="material-symbols-outlined text-base">arrow_back</span>
                 Back to Home
             </a>
-
-            <form method="POST" action="{{ route('checkout.pay') }}" class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-                @csrf
-                <input type="hidden" name="product_id" :value="activeId">
-                <input type="hidden" name="total_price" :value="totalPrice">
-                <input type="hidden" name="exclusive_offers" :value="JSON.stringify(offers.filter(o => o.selected).map(o => o.id))">
-
-                {{-- LEFT COLUMN: INPUTS & UPSELLS --}}
-                <div class="lg:col-span-7 space-y-8">
-                    
-                    {{-- 1. Account Details --}}
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
-                        <div class="flex items-center gap-3 mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
-                            <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">1</span>
-                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Account Information</h2>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
-                                <input type="email" name="email" required value="{{ old('email', auth()->user()->email ?? '') }}"
-                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                                       placeholder="For order confirmation">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    {{ Str::contains($category, ['followers', 'page_followers']) ? 'Username / Link' : 'Post / Video Link' }}
-                                </label>
-                                <input type="text" name="username" required value="{{ old('username') }}"
-                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                                       placeholder="{{ Str::contains($category, 'followers') ? '@username or profile link' : 'https://...' }}">
-                                <p class="text-xs text-gray-400 mt-2">
-                                    Make sure your account is <strong>Public</strong>. No password required.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 2. Customize (Upsells) --}}
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
-                        <div class="flex items-center gap-3 mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
-                            <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">2</span>
-                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Customize Your Order</h2>
-                        </div>
-
-                        <div class="space-y-6">
-                            {{-- Quality Upsell --}}
-                            <div>
-                                <label class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide mb-3 block">Quality</label>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <label class="cursor-pointer relative">
-                                        <input type="radio" name="upsell_quality" value="essential" x-model="quality" class="peer sr-only">
-                                        <div class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-indigo-500 peer-checked:bg-indigo-50 dark:peer-checked:bg-indigo-900/30 transition hover:border-gray-300">
-                                            <div class="flex justify-between items-center mb-1">
-                                                <span class="font-bold text-gray-800 dark:text-gray-200">Essential</span>
-                                                <span class="text-xs font-bold bg-gray-200 text-gray-600 px-2 py-1 rounded">Free</span>
-                                            </div>
-                                            <p class="text-xs text-gray-500">Standard quality for regular growth.</p>
-                                        </div>
-                                    </label>
-                                    <label class="cursor-pointer relative">
-                                        <input type="radio" name="upsell_quality" value="pro" x-model="quality" class="peer sr-only">
-                                        <div class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-indigo-500 peer-checked:bg-indigo-50 dark:peer-checked:bg-indigo-900/30 transition hover:border-gray-300">
-                                            <div class="flex justify-between items-center mb-1">
-                                                <span class="font-bold text-gray-800 dark:text-gray-200">High Quality</span>
-                                                <span class="text-xs font-bold bg-indigo-100 text-indigo-600 px-2 py-1 rounded">+$15.00</span>
-                                            </div>
-                                            <p class="text-xs text-gray-500">Better retention & real looking profiles.</p>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {{-- Speed Upsell --}}
-                            <div>
-                                <label class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide mb-3 block">Delivery Speed</label>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <label class="cursor-pointer relative">
-                                        <input type="radio" name="upsell_speed" value="standard" x-model="speed" class="peer sr-only">
-                                        <div class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-pink-500 peer-checked:bg-pink-50 dark:peer-checked:bg-pink-900/30 transition hover:border-gray-300">
-                                            <div class="flex justify-between items-center mb-1">
-                                                <span class="font-bold text-gray-800 dark:text-gray-200">Standard</span>
-                                                <span class="text-xs font-bold bg-gray-200 text-gray-600 px-2 py-1 rounded">Free</span>
-                                            </div>
-                                            <p class="text-xs text-gray-500">Starts within 24 hours.</p>
-                                        </div>
-                                    </label>
-                                    <label class="cursor-pointer relative">
-                                        <input type="radio" name="upsell_speed" value="priority" x-model="speed" class="peer sr-only">
-                                        <div class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-pink-500 peer-checked:bg-pink-50 dark:peer-checked:bg-pink-900/30 transition hover:border-gray-300">
-                                            <div class="flex justify-between items-center mb-1">
-                                                <span class="font-bold text-gray-800 dark:text-gray-200">Priority</span>
-                                                <span class="text-xs font-bold bg-pink-100 text-pink-600 px-2 py-1 rounded">+$10.00</span>
-                                            </div>
-                                            <p class="text-xs text-gray-500">Skip the queue. Instant start.</p>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {{-- Protection Upsell --}}
-                            <div>
-                                <label class="flex items-center p-4 rounded-xl border-2 border-green-100 dark:border-green-900/50 bg-green-50 dark:bg-green-900/20 cursor-pointer transition hover:border-green-300">
-                                    <input type="checkbox" name="upsell_protection" x-model="protection" class="w-5 h-5 text-green-600 rounded focus:ring-green-500 border-gray-300">
-                                    <div class="ml-4 flex-grow">
-                                        <div class="flex justify-between items-center">
-                                            <span class="font-bold text-gray-900 dark:text-white">Add 30-Day Refill Protection</span>
-                                            <span class="font-bold text-green-600">+$5.00</span>
-                                        </div>
-                                        <p class="text-xs text-gray-500 mt-1">Auto-refill if any followers drop within 30 days.</p>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- RIGHT COLUMN: SUMMARY & EXCLUSIVE OFFERS --}}
-                <div class="lg:col-span-5 relative">
-                    {{-- Sticky Container --}}
-                    <div class="sticky top-8 space-y-8">
-                        {{-- ORDER SUMMARY --}}
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
-                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Order Summary</h3>
-
-                            {{-- PACKAGE SELECTOR (CLIENT SIDE) --}}
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selected Package</label>
-                                <select x-model="activeId" 
-                                        class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-gray-900 dark:text-white text-sm">
-                                    
-                                    @if(isset($allPlatformProducts))
-                                        @foreach($allPlatformProducts as $catName => $products)
-                                            <optgroup label="{{ str_replace('_', ' ', $catName) }}">
-                                                @foreach($products as $prod)
-                                                    @php $prodId = $platform.'-'.$catName.'-'.$loop->index; @endphp
-                                                    <option value="{{ $prodId }}">
-                                                        {{ number_format($prod['quantity']) }} {{ str_replace('_', ' ', $catName) }} - ${{ $prod['price'] }}
-                                                    </option>
-                                                @endforeach
-                                            </optgroup>
-                                        @endforeach
-                                    @endif
-
-                                </select>
-                            </div>
-
-                            <div class="space-y-3 mb-6 text-sm">
-                                <div class="flex justify-between text-gray-600 dark:text-gray-400">
-                                    <span>Base Price</span>
-                                    <span class="font-medium text-gray-900 dark:text-white" x-text="'$' + activeProduct.price"></span>
-                                </div>
-                                
-                                <div class="flex justify-between text-indigo-600" x-show="quality === 'pro'" style="display: none;">
-                                    <span>High Quality Upgrade</span>
-                                    <span>+$15.00</span>
-                                </div>
-
-                                <div class="flex justify-between text-pink-600" x-show="speed === 'priority'" style="display: none;">
-                                    <span>Priority Speed</span>
-                                    <span>+$10.00</span>
-                                </div>
-
-                                <div class="flex justify-between text-green-600" x-show="protection" style="display: none;">
-                                    <span>Refill Protection</span>
-                                    <span>+$5.00</span>
-                                </div>
-
-                                {{-- Summary for Exclusive Offers --}}
-                                <template x-for="offer in filteredOffers" :key="offer.id">
-                                    <div class="flex justify-between text-purple-600" x-show="offer.selected">
-                                        <span x-text="offer.name"></span>
-                                        <span x-text="'+$' + offer.price"></span>
-                                    </div>
-                                </template>
-                            </div>
-
-                            <div class="border-t border-gray-100 dark:border-gray-700 pt-6 mb-8">
-                                <div class="flex justify-between items-center text-xl font-bold text-gray-900 dark:text-white">
-                                    <span>Total</span>
-                                    <span x-text="'$' + totalPrice"></span>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
-                                <span>Pay Securely with</span>
-                                <span class="font-bold flex items-center gap-1">
-                                    <svg class="w-6 h-6" fill="currentcolor" viewBox="0 0 24 24"><path d="M13.5 10c0-2-2.5-2.5-2.5-2.5V6c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h1v4.5l3.5-3.5 1.5 1.5L9 20h9c1.1 0 2-.9 2-2v-6c0-1.1-.9-2-2-2h-4.5z"/></svg>
-                                    Xendit
-                                </span>
-                            </button>
-
-                            <div class="mt-6 flex justify-center gap-4 opacity-50 grayscale hover:grayscale-0 transition">
-                                <div class="flex items-center text-xs text-gray-500 gap-1">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                    SSL Secured Checkout
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- 3. Exclusive Offers --}}
-                        <div class="bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl shadow-sm border border-indigo-100 dark:border-indigo-800/30 p-6">
-                            <div class="flex items-center gap-2 mb-4">
-                                <h3 class="font-bold text-indigo-900 dark:text-indigo-300">🎉 Exclusive Offers</h3>
-                                <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Limited</span>
-                            </div>
-                            
-                            <div class="space-y-3">
-                                <template x-for="offer in filteredOffers" :key="offer.id">
-                                    <div class="flex items-center justify-between p-3 rounded-xl border bg-white dark:bg-gray-800 transition shadow-sm"
-                                         :class="offer.selected ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-100 dark:border-gray-700'">
-                                        
-                                        <div class="flex items-center gap-3">
-                                            <div class="h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">
-                                                <svg x-show="!offer.selected" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                                <svg x-show="offer.selected" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            </div>
-                                            <div>
-                                                <div class="flex items-center gap-2">
-                                                    <h4 class="font-bold text-gray-900 dark:text-white text-sm" x-text="offer.name"></h4>
-                                                    <template x-if="calculateSave(offer) > 0">
-                                                        <span class="bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded" x-text="'SAVE ' + calculateSave(offer) + '%'"></span>
-                                                    </template>
-                                                </div>
-                                                <div class="flex items-center gap-2">
-                                                    <p class="text-xs text-indigo-600 font-bold" x-text="'$' + offer.price"></p>
-                                                    <template x-if="offer.original_price">
-                                                        <p class="text-[10px] text-gray-400 line-through" x-text="'$' + offer.original_price"></p>
-                                                    </template>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <button type="button" @click="offer.selected = !offer.selected"
-                                                class="px-3 py-1.5 rounded-lg text-xs font-bold transition"
-                                                :class="offer.selected ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-indigo-600 text-white hover:bg-indigo-700'">
-                                            <span x-text="offer.selected ? 'Remove' : 'Add'"></span>
-                                        </button>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
+</nav>
 
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('checkoutApp', ({ initialId, products, offers }) => ({
-                activeId: initialId,
-                products: products || {},
-                quality: '{{ request('upsell_quality', 'essential') }}',
-                speed: '{{ request('upsell_speed', 'standard') }}',
-                protection: false,
-                offers: offers || [],
+<main class="pt-32 pb-24 px-6 bg-light-bg">
+    <div class="max-w-6xl mx-auto">
+        {{-- Flash Messages --}}
+        @if(session('success'))
+            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 animate-fade-in-down">
+                <span class="material-symbols-outlined text-green-600">check_circle</span>
+                <p class="text-green-800 font-medium">{{ session('success') }}</p>
+            </div>
+        @endif
 
-                get activeProduct() {
-                    // Safety check
-                    if (!this.products || !this.activeId) return { price: 0 };
-                    return this.products[this.activeId] || { price: 0 };
-                },
+        @if($errors->any())
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl animate-fade-in-down">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="material-symbols-outlined text-red-600">error</span>
+                    <h3 class="text-red-800 font-bold">Please correct the following errors:</h3>
+                </div>
+                <ul class="list-disc list-inside text-red-700 text-sm space-y-1 ml-2">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        <form method="POST" action="{{ route('checkout.pay') }}" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            @csrf
+            
+            {{-- Hidden Inputs for Form Submission --}}
+            <input type="hidden" name="product_id" :value="activeId">
+            <input type="hidden" name="total_price" :value="totalPrice">
+            <input type="hidden" name="upsell_quality" :value="quality">
+            <input type="hidden" name="upsell_protection" :value="protection ? '1' : '0'">
+            <input type="hidden" name="exclusive_offers" :value="JSON.stringify(offers.filter(o => o.selected).map(o => o.id))">
 
-                get currentPlatform() {
-                    if(!this.activeId || typeof this.activeId !== 'string') return '';
-                    return this.activeId.split('-')[0].toLowerCase();
-                },
+            <div class="lg:col-span-7 space-y-8">
+                {{-- Step 1: Account Information --}}
+                <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-xl shadow-gray-200/50">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-8 h-8 rounded-full bg-accent-purple/10 flex items-center justify-center text-accent-purple font-bold text-sm">1</div>
+                        <h2 class="text-xl font-bold text-text-charcoal tracking-tight">Account Information</h2>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-text-charcoal mb-2">Email Address</label>
+                            <input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-text-charcoal placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-accent-cyan/10 focus:border-accent-cyan transition-all shadow-sm"
+                                   type="email" name="email" required placeholder="your@email.com"
+                                   value="{{ old('email', auth()->user()->email ?? '') }}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-text-charcoal mb-2" x-text="usernameLabel"></label>
+                            <div class="relative">
+                                <input class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-text-charcoal placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-accent-cyan/10 focus:border-accent-cyan transition-all shadow-sm"
+                                       type="text" name="username" required :placeholder="usernamePlaceholder"
+                                       value="{{ old('username') }}">
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg">public</span>
+                            </div>
+                            <p class="mt-2 text-[11px] text-text-muted font-medium">Make sure your account is Public. No password required.</p>
+                        </div>
+                    </div>
+                </div>
 
-                get filteredOffers() {
-                    if(!this.offers) return [];
-                    const current = this.currentPlatform;
-                    
-                    return this.offers.filter(offer => {
-                        // Global offers (no platform set)
-                        if (!offer.platform) return true; 
+                {{-- Step 2: Customize Order --}}
+                <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-xl shadow-gray-200/50">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-8 h-8 rounded-full bg-accent-purple/10 flex items-center justify-center text-accent-purple font-bold text-sm">2</div>
+                        <h2 class="text-xl font-bold text-text-charcoal tracking-tight">Customize Your Order</h2>
+                    </div>
+                    <div class="mb-8">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-text-muted mb-4">Quality</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- High Quality (Standard) -->
+                            <button type="button" 
+                                    @click="quality = 'high'"
+                                    :class="quality === 'high' ? 'selected-gradient-border shadow-lg' : 'border border-gray-200 bg-white hover:border-gray-300 shadow-sm'"
+                                    class="group relative p-4 rounded-xl text-left transition-all">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-bold text-text-charcoal">High Quality</span>
+                                    <span class="text-[10px] font-bold bg-gray-100 px-2 py-0.5 rounded text-text-muted">Standard</span>
+                                </div>
+                                <p class="text-xs text-text-muted">Good retention & real looking profiles.</p>
+                            </button>
 
-                        // String checks
-                        const offerPlat = (typeof offer.platform === 'string') 
-                            ? offer.platform.toLowerCase() 
-                            : '';
+                            <!-- Premium Quality (Upgrade) -->
+                            <button type="button" 
+                                    @click="quality = 'premium'"
+                                    :class="quality === 'premium' ? 'selected-gradient-border shadow-lg' : 'border border-gray-200 bg-white hover:border-gray-300 shadow-sm'"
+                                    class="group relative p-4 rounded-xl text-left transition-all">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-bold text-text-charcoal">Premium Quality</span>
+                                    <span class="text-[10px] font-bold bg-accent-cyan/10 px-2 py-0.5 rounded text-accent-cyan">Best Choice</span>
+                                </div>
+                                <p class="text-xs text-text-muted">Top tier retention, active profiles & priority support.</p>
+                            </button>
+                        </div>
+                    </div>
 
-                        if (offerPlat === 'all') return true;
-                        if (offerPlat === current) return true;
+                    <div class="bg-section-bg rounded-xl p-4 flex items-center justify-between border border-gray-100 shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-emerald-600">verified_user</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-text-charcoal text-sm">Add 30-Day Refill Protection</p>
+                                <p class="text-xs text-text-muted">Auto-refill if any followers drop.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-bold text-emerald-600">+$5.00</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" x-model="protection"/>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-purple"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                        return false;
-                    });
-                },
+            <div class="lg:col-span-5 relative">
+                <div class="sticky top-24 space-y-8">
+                    {{-- Order Summary --}}
+                    <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-xl shadow-gray-200/50">
+                    <h2 class="text-xl font-bold text-text-charcoal tracking-tight mb-8">Order Summary</h2>
+                    <div class="space-y-6">
 
-                get totalPrice() {
-                    let total = parseFloat(this.activeProduct.price || 0);
-                    
-                    if (this.quality === 'pro') total += 15;
-                    if (this.speed === 'priority') total += 10;
-                    if (this.protection) total += 5;
-                    
-                    // Add selected offers using defensive coding
-                    this.filteredOffers.forEach(offer => {
-                        if(offer.selected) {
-                            total += parseFloat(offer.price || 0);
-                        }
-                    });
+                        {{-- Category Dropdown --}}
+                        <div>
+                            <label class="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Platform & Category</label>
+                            <select x-model="selectedCategoryKey"
+                                    class="w-full bg-section-bg border border-gray-200 rounded-xl px-4 py-3 text-text-charcoal font-bold focus:outline-none focus:ring-2 focus:ring-accent-purple/20 transition-all text-sm">
+                                <template x-for="catKey in categoryKeys" :key="catKey">
+                                    <option :value="catKey" x-text="formatCategoryName(catKey)"></option>
+                                </template>
+                            </select>
+                        </div>
 
-                    return total.toFixed(2);
-                },
+                        {{-- Package Dropdown --}}
+                        <div>
+                            <label class="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Package Size</label>
+                            <select x-model="selectedProductIndex"
+                                    class="w-full bg-section-bg border border-gray-200 rounded-xl px-4 py-3 text-text-charcoal font-bold focus:outline-none focus:ring-2 focus:ring-accent-purple/20 transition-all text-sm">
+                                <template x-for="(prod, index) in currentCategoryProducts" :key="index">
+                                    <option :value="index" x-text="formatProductName(prod)"></option>
+                                </template>
+                            </select>
+                        </div>
 
-                calculateSave(offer) {
-                    const price = parseFloat(offer.price || 0);
-                    const orig = parseFloat(offer.original_price || 0);
+                        <div class="pt-4 border-t border-gray-100 space-y-3">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-text-muted">Base Price</span>
+                                <span class="text-text-charcoal font-semibold" x-text="'$' + formatPrice(basePrice)"></span>
+                            </div>
+                            <template x-if="quality === 'premium'">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-text-muted">Premium Quality</span>
+                                    <span class="text-accent-cyan font-semibold">+$15.00</span>
+                                </div>
+                            </template>
+                             <template x-if="protection">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-text-muted">Refill Protection</span>
+                                    <span class="text-emerald-600 font-semibold">+$5.00</span>
+                                </div>
+                            </template>
+                            
+                             {{-- Selected Offers --}}
+                            <template x-for="offer in offers.filter(o => o.selected)" :key="offer.id">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-text-muted" x-text="offer.name"></span>
+                                    <span class="text-text-charcoal font-semibold" x-text="'+$' + formatPrice(offer.price)"></span>
+                                </div>
+                            </template>
+                        </div>
 
-                    if(orig > price) {
-                        const savings = ((orig - price) / orig) * 100;
-                        return Math.round(savings);
+                        <div class="pt-6 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-lg font-bold text-text-charcoal">Total</span>
+                            <span class="text-3xl font-black text-text-charcoal" x-text="'$' + totalPrice"></span>
+                        </div>
+                        
+                        <button type="submit"  class="w-full py-4 rounded-xl vibrant-gradient text-white font-bold text-lg hover:brightness-105 active:scale-[0.98] transition-all shadow-xl shadow-accent-pink/25 flex items-center justify-center gap-3 mt-4">
+                            <span class="material-symbols-outlined">currency_bitcoin</span>
+                            Pay Securely with Crypto
+                        </button>
+                        
+                        <div class="flex items-center justify-center gap-2 text-text-muted text-[10px] uppercase tracking-widest font-bold">
+                            <span class="material-symbols-outlined text-xs">lock</span>
+                            SSL Secured Checkout
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Exclusive Offers --}}
+                <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-xl shadow-gray-200/50">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-accent-pink text-lg">local_fire_department</span>
+                            <h3 class="font-bold text-text-charcoal">Exclusive Offers</h3>
+                        </div>
+                        <span class="bg-accent-pink text-white text-[10px] font-black px-2 py-0.5 rounded uppercase">Limited</span>
+                    </div>
+                    <div class="space-y-4">
+                         <template x-for="offer in offers" :key="offer.id">
+                            <div class="bg-section-bg rounded-xl p-4 border border-transparent hover:border-accent-purple/30 transition-colors flex items-center justify-between group shadow-sm">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-accent-purple/10 flex items-center justify-center text-accent-purple">
+                                        <span class="material-symbols-outlined text-xl">favorite</span>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-bold text-text-charcoal text-sm" x-text="offer.name"></p>
+                                            <span class="text-[9px] font-black bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">SAVE</span>
+                                        </div>
+                                        <p class="text-xs text-text-muted">
+                                            <span x-text="'$' + formatPrice(offer.price)"></span> 
+                                            <span class="line-through opacity-40 ml-1" x-show="offer.original_price" x-text="'$' + formatPrice(offer.original_price)"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <button type="button" @click="offer.selected = !offer.selected" 
+                                        :class="offer.selected ? 'bg-red-500 text-white' : 'bg-accent-purple text-white'"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center hover:scale-110 transition-transform shadow-md">
+                                    <span class="material-symbols-outlined text-xl" x-text="offer.selected ? 'close' : 'add'"></span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+<section class="py-24 bg-section-bg border-t border-gray-100">
+    <div class="max-w-4xl mx-auto px-6">
+        <div class="flex flex-col md:flex-row items-center gap-16">
+            <div class="flex-1">
+                <h2 class="text-xs font-black uppercase tracking-[0.3em] text-text-muted mb-6">Security Transparency</h2>
+                <h3 class="text-4xl font-bold tracking-tight mb-8 text-text-charcoal">WHY CRYPTO PAYMENT ONLY</h3>
+                <div class="space-y-6 text-text-muted leading-relaxed font-medium">
+                    <p class="text-lg text-text-charcoal font-semibold italic">"The short version: Social proof services have high chargeback rates from users testing 'temporary' boosts then asking for money back."</p>
+                    <p>Crypto protects us from fraudulent disputes, allowing us to keep our prices 40% lower and our network quality 100% stable.</p>
+                    <p>We've been running since 2023 without the chaos that credit card chargebacks create. Your transaction is instant, private, and final.</p>
+                </div>
+                <div class="mt-10 flex items-center gap-8">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-emerald-600">verified</span>
+                        <span class="text-xs font-bold uppercase text-text-muted">Zero Chargebacks</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-accent-cyan">lock</span>
+                        <span class="text-xs font-bold uppercase text-text-muted">100% Privacy</span>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full md:w-[320px] shrink-0">
+                <div class="bg-white p-8 rounded-[40px] border border-gray-100 shadow-2xl shadow-gray-200/50 relative">
+                    <div class="absolute -top-4 -right-4 bg-accent-pink text-white p-4 rounded-3xl shadow-xl">
+                        <span class="material-symbols-outlined text-3xl">currency_bitcoin</span>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="h-1 bg-gray-100 rounded-full w-full"></div>
+                        <div class="space-y-2">
+                            <div class="h-4 bg-gray-50 rounded-md w-3/4"></div>
+                            <div class="h-4 bg-gray-50 rounded-md w-1/2"></div>
+                        </div>
+                        <div class="p-4 bg-section-bg rounded-2xl border border-gray-100 text-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-text-muted block mb-2">Network Uptime</span>
+                            <span class="text-2xl font-black text-emerald-600">99.9%</span>
+                        </div>
+                        <div class="h-1 bg-gray-100 rounded-full w-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-white border-t border-gray-100 py-12">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">© 2024 SOCBOOST+ INTERNATIONAL. BUILT FOR ACCOUNT INTEGRITY.</p>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('checkoutApp', (config) => ({
+            allProducts: config.allProducts || {},
+            offers: config.offers || [],
+            
+            // State
+            quality: config.initialQuality || 'standard', // 'standard' or 'premium'
+            protection: false,
+            email: '',
+
+            selectedPlatform: config.initialPlatform,
+            selectedCategory: config.initialCategory,
+            selectedProductIndex: parseInt(config.initialId.split('-')[2]) || 0, // Points to the index within the specific category array
+
+            init() {
+                // No specific init logic needed here as state is initialized directly from config
+            },
+
+            // Computed property for generating keys for the first dropdown (Platform + Category)
+            get categoryKeys() {
+                let keys = [];
+                for (const [platform, categories] of Object.entries(this.allProducts)) {
+                    for (const category of Object.keys(categories)) {
+                        keys.push(`${platform}|${category}`);
                     }
-                    return 0;
                 }
-            }))
-        })
-    </script>
-</x-layouts.app>
+                return keys;
+            },
+
+            // The currently selected key (getter/setter to split back into platform/category)
+            get selectedCategoryKey() {
+                return `${this.selectedPlatform}|${this.selectedCategory}`;
+            },
+            set selectedCategoryKey(value) {
+                const [plat, cat] = value.split('|');
+                this.selectedPlatform = plat;
+                this.selectedCategory = cat;
+                this.selectedProductIndex = 0; // Reset to first product when category changes
+            },
+
+            get currentCategoryProducts() {
+                if (this.allProducts[this.selectedPlatform] && this.allProducts[this.selectedPlatform][this.selectedCategory]) {
+                    return this.allProducts[this.selectedPlatform][this.selectedCategory];
+                }
+                return [];
+            },
+
+            get activeProduct() {
+                const products = this.currentCategoryProducts;
+                if (products[this.selectedProductIndex]) {
+                    return products[this.selectedProductIndex];
+                }
+                return null;
+            },
+            
+            get activeId() {
+                // Reconstruct ID for backend: platform-category-index
+                return `${this.selectedPlatform}-${this.selectedCategory}-${this.selectedProductIndex}`;
+            },
+
+            get basePrice() {
+                return this.activeProduct ? parseFloat(this.activeProduct.price) : 0;
+            },
+
+            get totalPrice() {
+                let total = this.basePrice;
+
+                // Add Premium Quality cost (High Quality is base/free assumption based on design, Premium is upgrade)
+                // Let's assume Premium adds $15.00 like in the previous design
+                if (this.quality === 'premium') {
+                    total += 15.00;
+                }
+
+                if (this.protection) {
+                    total += 5.00;
+                }
+
+                // Add selected offers
+                this.offers.forEach(offer => {
+                    if (offer.selected) {
+                        total += parseFloat(offer.price || 0);
+                    }
+                });
+
+                return total.toFixed(2);
+            },
+
+            get usernameLabel() {
+                 const cat = this.selectedCategory.toLowerCase();
+                 if (cat.includes('followers') || cat.includes('page_followers')) {
+                     return 'Username / Link';
+                 }
+                 return 'Post / Video Link';
+            },
+
+            get usernamePlaceholder() {
+                 const cat = this.selectedCategory.toLowerCase();
+                 if (cat.includes('followers')) {
+                     return '@username or profile link';
+                 }
+                 return 'https://...';
+            },
+
+            formatCategoryName(key) {
+                const [plat, cat] = key.split('|');
+                const platFormatted = plat.charAt(0).toUpperCase() + plat.slice(1);
+                const catFormatted = cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                return `${platFormatted} ${catFormatted}`;
+            },
+
+            formatProductName(prod) {
+                const quantity = new Intl.NumberFormat().format(prod.quantity);
+                return `${quantity} ${this.formatCategoryName(this.selectedCategoryKey).split(' ').slice(1).join(' ')} - $${prod.price}`;
+            },
+
+            formatPrice(price) {
+                return parseFloat(price).toFixed(2);
+            }
+        }));
+    });
+</script>
+</body>
+</html>

@@ -10,8 +10,12 @@ Route::get('/', function (ProductService $productService) {
     return view('landing', compact('products'));
 })->name('landing');
 
+Route::get('/products/facebook', [App\Http\Controllers\ProductController::class, 'facebook'])->name('products.facebook');
+Route::get('/products/instagram', [App\Http\Controllers\ProductController::class, 'instagram'])->name('products.instagram');
+Route::get('/products/tiktok', [App\Http\Controllers\ProductController::class, 'tiktok'])->name('products.tiktok');
+
 Route::middleware('auth')->group(function () {
-    Route::get('/checkout/{id}', [CheckoutController::class, 'index'])->name('checkout');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/pay', [CheckoutController::class, 'pay'])->name('checkout.pay');
 });
 
