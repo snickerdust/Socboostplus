@@ -342,21 +342,21 @@
                 </template>
                  <template x-if="quality === 'premium'">
                       <div class="contents">
-                          @forelse($products['likes'] ?? [] as $index => $product)
+                          @forelse($products['likes_premium'] ?? [] as $index => $product)
                              <div 
-                                 @click="selectedProduct = { id: 'instagram-likes-{{ $index }}&quality=premium', price: {{ $product['price'] + 15 }}, savings: {{ number_format($product['price'] + 15, 2) }} }"
-                                 :class="{ 'ring-4 ring-yellow-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'instagram-likes-{{ $index }}&quality=premium' }"
+                                 @click="selectedProduct = { id: 'instagram-likes_premium-{{ $index }}', price: {{ $product['price'] }}, savings: {{ number_format($product['price'], 2) }} }"
+                                 :class="{ 'ring-4 ring-yellow-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'instagram-likes_premium-{{ $index }}' }"
                                  class="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all border-b-4 border-b-yellow-500/20 group relative">
                                  <div class="mb-4"><span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-500/10 px-2 py-1 rounded">PREMIUM</span></div>
                                  <!-- Selection Checkmark -->
-                                 <div x-show="selectedProduct?.id === 'instagram-likes-{{ $index }}&quality=premium'" class="absolute top-4 right-4 bg-yellow-500 text-white rounded-full p-1 shadow-lg" style="display: none;">
+                                 <div x-show="selectedProduct?.id === 'instagram-likes_premium-{{ $index }}'" class="absolute top-4 right-4 bg-yellow-500 text-white rounded-full p-1 shadow-lg" style="display: none;">
                                      <span class="material-symbols-outlined text-sm font-bold">check</span>
                                  </div>
                                  <div class="aspect-square w-full bg-yellow-500/10 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center">
                                      <span class="material-symbols-outlined text-5xl text-yellow-500/60 group-hover:scale-110 transition-transform">workspace_premium</span>
                                  </div>
                                  <h3 class="text-xl font-bold">{{ number_format($product['quantity']) }} Likes</h3>
-                                  <div class="flex items-baseline gap-2 mb-2"><span class="text-2xl font-black">${{ number_format($product['price'] + 15, 2) }}</span></div>
+                                  <div class="flex items-baseline gap-2 mb-2"><span class="text-2xl font-black">${{ $product['price'] }}</span></div>
                             </div>
                           @empty
                              <div class="col-span-full text-center py-10 text-zinc-500">No premium likes packages available.</div>
