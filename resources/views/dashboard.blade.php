@@ -1,65 +1,144 @@
-<x-app-layout>
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            {{-- WELCOME HEADER --}}
-            <div class="flex justify-between items-end mb-8">
-                <div>
-                    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">
-                        Hello, {{ auth()->user()->name }}! 👋
-                    </h2>
-                    <p class="text-gray-500 dark:text-gray-400 mt-1">Track your orders and manage your account.</p>
-                </div>
-                <a href="{{ route('landing') }}" class="group flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none transition transform hover:-translate-y-1">
-                    <span>New Order</span>
-                    <svg class="w-5 h-5 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </a>
-            </div>
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>SocBoost+ | Dashboard</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="selection:bg-accent-pink/20 flex min-h-screen bg-light-bg font-sans"
+      x-data="{ tab: 'orders' }">
 
-            {{-- ORDER HISTORY CARD --}}
-            <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-                <div class="p-8">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Recent Activity</h3>
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-sidebar text-white flex flex-col fixed inset-y-0 left-0 z-50">
+        <div class="p-6 border-b border-white/10">
+            <span class="text-xl font-bold tracking-tighter">SocBoost<span class="text-accent-pink">+</span></span>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="#" @click.prevent="tab = 'orders'" 
+               :class="tab === 'orders' ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white hover:bg-white/5'"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <span class="material-symbols-outlined text-xl">list_alt</span>
+                My Orders
+            </a>
+            <a href="{{ route('landing') }}" 
+               class="text-white/60 hover:text-white hover:bg-white/5 flex items-center gap-3 px-4 py-3 rounded-lg transition-all group">
+                <span class="material-symbols-outlined text-xl">add_circle</span>
+                New Order
+            </a>
+        </nav>
+        <div class="p-4 border-t border-white/10" x-data="{ open: false }">
+            <div class="relative">
+                <button @click="open = !open" @click.outside="open = false" class="flex items-center gap-3 px-4 py-3 w-full text-left rounded-lg hover:bg-white/5 transition-all group">
+                    <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white">{{ substr(auth()->user()->name, 0, 2) }}</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold truncate text-white">{{ auth()->user()->name }}</p>
+                        <p class="text-[10px] text-white/40 truncate">{{ auth()->user()->email }}</p>
+                    </div>
+                    <span class="material-symbols-outlined text-white/40 text-sm group-hover:text-white transition-colors" :class="{'rotate-180': open}">expand_less</span>
+                </button>
+
+                <!-- Dropdown -->
+                <div x-show="open" 
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="opacity-0 translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 translate-y-2"
+                     class="absolute bottom-full left-0 mb-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl overflow-hidden z-20"
+                     style="display: none;">
                     
+                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-lg">person_edit</span>
+                        Edit Profile
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="flex items-center gap-3 px-4 py-3 w-full text-left text-sm text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors">
+                            <span class="material-symbols-outlined text-lg">logout</span>
+                            Log Out
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 ml-64 min-h-screen flex flex-col">
+        <header class="h-16 border-b border-gray-100 flex items-center justify-between px-8 bg-white sticky top-0 z-40">
+            <h1 class="text-sm font-bold text-text-charcoal uppercase tracking-widest">Dashboard</h1>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2 text-text-muted">
+                    <span class="material-symbols-outlined text-lg">schedule</span>
+                    <span class="text-xs font-semibold">{{ now()->format('M d, H:i A') }}</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-8 space-y-8 flex-1">
+            
+            <div x-show="tab === 'orders'" class="space-y-6">
+                <!-- Welcome Section -->
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-3xl font-bold tracking-tight text-text-charcoal">Hello, {{ auth()->user()->name }}! 👋</h2>
+                        <p class="text-text-muted mt-1">Track your active orders and history.</p>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden">
                     @if(count($orders) > 0)
                         <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead class="bg-gray-50 dark:bg-gray-700/30 border-b border-gray-100 dark:border-gray-700">
-                                    <tr>
-                                        <th class="text-left py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-wider">Date</th>
-                                        <th class="text-left py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-wider">Service</th>
-                                        <th class="text-left py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                                        <th class="text-right py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-wider">Total</th>
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-section-bg border-b border-gray-100">
+                                        <th class="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Date</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Service</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Status</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Total</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                                <tbody class="divide-y divide-gray-100">
                                     @foreach($orders as $order)
-                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
-                                            <td class="py-4 px-6 text-sm text-gray-500 font-medium">
+                                        <tr class="hover:bg-section-bg/50 transition-colors">
+                                            <td class="px-6 py-5 text-xs text-text-muted font-medium">
                                                 {{ \Carbon\Carbon::parse($order['created_at'] ?? now())->format('d M, Y') }}
                                             </td>
-                                            <td class="py-4 px-6">
+                                            <td class="px-6 py-5">
                                                 <div class="flex flex-col">
-                                                    <span class="text-sm font-bold text-gray-900 dark:text-white">
-                                                        {{ str_replace('-', ' ', $order['product_id']) }}
-                                                    </span>
-                                                    <span class="text-xs text-indigo-500 font-medium">{{ $order['target_username'] }}</span>
+                                                    <span class="text-xs font-bold text-text-charcoal capitalize">{{ str_replace('-', ' ', $order['product_id']) }}</span>
+                                                    <span class="text-[10px] text-accent-purple font-medium">{{ $order['target_username'] }}</span>
                                                 </div>
                                             </td>
-                                            <td class="py-4 px-6">
-                                                <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-bold
-                                                    {{ ($order['status']??'') == 'completed' ? 'bg-green-100 text-green-700' : 
-                                                       (($order['status']??'') == 'processing' ? 'bg-blue-100 text-blue-700' : 
-                                                       (($order['status']??'') == 'paid' ? 'bg-purple-100 text-purple-700' : 
-                                                       'bg-yellow-100 text-yellow-700')) }}">
-                                                        <span class="w-1.5 h-1.5 rounded-full {{ ($order['status']??'') == 'completed' ? 'bg-green-500' : 
-                                                            (($order['status']??'') == 'processing' ? 'bg-blue-500' : 
-                                                            (($order['status']??'') == 'paid' ? 'bg-purple-500' : 
-                                                            'bg-yellow-500')) }}"></span>
-                                                        {{ ucfirst(str_replace('_', ' ', $order['status'] ?? 'Pending')) }}
-                                                </span>
+                                            <td class="px-6 py-5">
+                                                <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full 
+                                                    {{ ($order['status']??'') == 'completed' ? 'bg-green-50 border border-green-100 text-green-600' : 
+                                                       (($order['status']??'') == 'processing' ? 'bg-blue-50 border border-blue-100 text-blue-600' : 
+                                                       (($order['status']??'') == 'paid' ? 'bg-purple-50 border border-purple-100 text-purple-600' : 
+                                                       'bg-orange-50 border border-orange-100 text-orange-600')) }}">
+                                                    @if(($order['status']??'') != 'completed')
+                                                        <span class="pulse-dot">
+                                                            <span class="pulse-dot-inner {{ ($order['status']??'')=='processing' ? 'bg-blue-400' : (($order['status']??'')=='paid' ? 'bg-purple-400' : 'bg-orange-400') }}"></span>
+                                                            <span class="pulse-dot-core {{ ($order['status']??'')=='processing' ? 'bg-blue-500' : (($order['status']??'')=='paid' ? 'bg-purple-500' : 'bg-orange-500') }}"></span>
+                                                        </span>
+                                                    @endif
+                                                    <span class="text-[10px] font-bold uppercase">{{ ucfirst(str_replace('_', ' ', $order['status'] ?? 'Pending')) }}</span>
+                                                </div>
                                             </td>
-                                            <td class="py-4 px-6 text-right font-bold text-gray-900 dark:text-white">
+                                            <td class="px-6 py-5 text-right font-bold text-xs text-text-charcoal">
                                                 ${{ number_format($order['total_price_usd'] ?? $order['total_price'] ?? 0, 2) }}
                                             </td>
                                         </tr>
@@ -69,22 +148,22 @@
                         </div>
                     @else
                         <div class="text-center py-12">
-                            <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                            <div class="w-16 h-16 bg-section-bg rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                                <span class="material-symbols-outlined text-3xl">shopping_basket</span>
                             </div>
-                            <p class="text-gray-500 font-medium">You haven't placed any orders yet.</p>
+                            <p class="text-text-muted font-medium text-sm">You haven't placed any orders yet.</p>
+                            <a href="{{ route('landing') }}" class="mt-4 inline-block px-6 py-2 bg-accent-purple text-white rounded-lg text-xs font-bold hover:bg-accent-purple/90 transition">Start New Order</a>
                         </div>
                     @endif
                 </div>
             </div>
 
         </div>
-    </div>
+    </main>
 
-    {{-- FLOATING CHAT WIDGET (SHOPEE STYLE) --}}
+    {{-- FLOATING CHAT WIDGET (Preserved) --}}
     <div x-data="chatWidget()" x-init="initWidget()" class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4 font-sans text-left">
-        
-        {{-- Chat Window --}}
+        <!-- Chat Body -->
         <div x-show="open" 
              style="display: none;"
              x-transition:enter="transition ease-out duration-300"
@@ -93,37 +172,31 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 translate-y-0 scale-100"
              x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-             class="bg-white dark:bg-gray-800 w-80 md:w-96 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-[500px]">
+             class="bg-white w-80 md:w-96 rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col h-[500px]">
             
-            {{-- Header --}}
-            <div class="bg-indigo-600 p-4 flex justify-between items-center text-white flex-shrink-0">
+            <div class="bg-sidebar p-4 flex justify-between items-center text-white flex-shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold text-lg">SB</div>
+                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center font-bold text-lg">SB</div>
                     <div>
                         <h4 class="font-bold text-sm">SocBoost Support</h4>
-                        <p class="text-[10px] text-indigo-100 opacity-90">Usually replies in minutes</p>
+                        <p class="text-[10px] text-gray-300 opacity-90">Usually replies in minutes</p>
                     </div>
                 </div>
-                <button @click="toggleChat()" class="hover:bg-white/20 p-1 rounded transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button @click="toggleChat()" class="hover:bg-white/20 p-1 rounded transition"><span class="material-symbols-outlined text-lg">close</span></button>
             </div>
 
-            {{-- Body --}}
-            <div class="flex-1 bg-gray-50 dark:bg-gray-900/50 p-4 overflow-y-auto space-y-4" id="chat-messages">
-                
-                {{-- Initial Greeting (Only show if no history) --}}
+            <div class="flex-1 bg-section-bg p-4 overflow-y-auto space-y-4" id="chat-messages">
                 <div class="flex gap-3" x-show="messages.length === 0">
-                    <div class="w-8 h-8 bg-indigo-100 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-indigo-600">A</div>
+                    <div class="w-8 h-8 bg-sidebar rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white">A</div>
                     <div class="space-y-2 max-w-[85%]">
-                        <div class="bg-white dark:bg-gray-800 p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-700 dark:text-gray-300">
+                        <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-text-charcoal">
                             Hi {{ auth()->user()->name }}! 👋 How can we help you today?
                         </div>
-                        
-                        {{-- Quick Menu --}}
                         <div class="flex flex-col gap-2" x-show="mode === 'menu'">
-                            <button @click="selectOption('order')" class="text-left px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 border border-indigo-100 rounded-xl text-xs font-bold text-indigo-600 transition shadow-sm">
+                            <button @click="selectOption('order')" class="text-left px-4 py-2 bg-white hover:bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-accent-purple transition shadow-sm">
                                 📦 Check Order Status
                             </button>
-                            <button @click="selectOption('payment')" class="text-left px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 border border-indigo-100 rounded-xl text-xs font-bold text-indigo-600 transition shadow-sm">
+                            <button @click="selectOption('payment')" class="text-left px-4 py-2 bg-white hover:bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-accent-purple transition shadow-sm">
                                 💳 Payment Issue
                             </button>
                             <button @click="startChat()" class="text-left px-4 py-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-xl text-xs font-bold text-indigo-700 transition shadow-sm">
@@ -132,15 +205,13 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- Dynamic Conversation --}}
                 <template x-for="msg in messages" :key="msg.timestamp">
                     <div class="flex gap-3" :class="msg.role !== 'admin' ? 'flex-row-reverse' : ''">
                         <template x-if="msg.role === 'admin'">
-                             <div class="w-8 h-8 bg-indigo-100 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-indigo-600">A</div>
+                             <div class="w-8 h-8 bg-sidebar rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white">A</div>
                         </template>
                         <div class="p-3 rounded-2xl shadow-sm text-sm max-w-[85%]" 
-                             :class="msg.role !== 'admin' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-tl-none'">
+                             :class="msg.role !== 'admin' ? 'bg-accent-purple text-white rounded-tr-none' : 'bg-white text-text-charcoal rounded-tl-none'">
                             <p x-text="msg.message"></p>
                             <span class="text-[9px] opacity-70 block mt-1" x-text="formatTime(msg.timestamp)"></span>
                         </div>
@@ -148,39 +219,34 @@
                 </template>
             </div>
 
-            {{-- Input Area --}}
-            <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex-shrink-0" x-show="mode === 'chat'">
+            <div class="p-4 bg-white border-t border-gray-100 flex-shrink-0" x-show="mode === 'chat'">
                  <form @submit.prevent="sendMessage" class="flex items-center gap-2">
-                    <input type="text" x-model="inputText" placeholder="Type a message..." class="flex-1 bg-gray-50 border-none rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full transition shadow-md disabled:opacity-50" :disabled="!inputText.trim()">
-                        <svg class="w-5 h-5 translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    <input type="text" x-model="inputText" placeholder="Type a message..." class="flex-1 bg-section-bg border-none rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-accent-purple outline-none">
+                    <button type="submit" class="bg-accent-purple hover:bg-accent-purple/90 text-white p-2 rounded-full transition shadow-md disabled:opacity-50" :disabled="!inputText.trim()">
+                        <span class="material-symbols-outlined text-sm pt-1">send</span>
                     </button>
                  </form>
             </div>
             
-            <div class="p-4 bg-gray-50 text-center border-t border-gray-100 flex-shrink-0" x-show="mode === 'menu'">
+            <div class="p-4 bg-section-bg text-center border-t border-gray-100 flex-shrink-0" x-show="mode === 'menu'">
                 <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Select an option above</p>
             </div>
-
         </div>
 
-        {{-- Toggle Button --}}
         <button @click="toggleChat()" 
-                class="w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg flex items-center justify-center transition transform hover:scale-110 active:scale-95 relative">
-            <svg x-show="!open" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-            <svg x-show="open" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            
-            {{-- Notification Badge --}}
-            <span x-show="hasUnread" class="absolute top-0 right-0 -mt-1 -mr-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+                class="w-14 h-14 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-full shadow-lg flex items-center justify-center transition transform hover:scale-110 active:scale-95 relative">
+            <span x-show="!open" class="material-symbols-outlined">chat_bubble</span>
+            <span x-show="open" class="material-symbols-outlined">close</span>
+            <span x-show="hasUnread" class="absolute top-0 right-0 -mt-1 -mr-1 w-4 h-4 bg-accent-pink rounded-full border-2 border-white animate-pulse"></span>
         </button>
-
     </div>
 
+    <!-- Layout Scripts -->
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('chatWidget', () => ({
                 open: false,
-                mode: 'menu', // menu, chat
+                mode: 'menu',
                 inputText: '',
                 messages: [],
                 hasUnread: false,
@@ -193,23 +259,15 @@
                     if(localStorage.getItem('socboost_chat_mode')) {
                         this.mode = localStorage.getItem('socboost_chat_mode');
                     }
-
-                    // Initial fetch
                     this.fetchMessages();
-
-                    // Poll every 5 seconds (Slower to reduce load)
-                    this.pollingCtx = setInterval(() => {
-                        this.fetchMessages();
-                    }, 5000);
+                    this.pollingCtx = setInterval(() => { this.fetchMessages(); }, 5000);
                 },
 
                 toggleChat() {
                     this.open = !this.open;
                     this.hasUnread = false;
                     localStorage.setItem('socboost_chat_open', this.open);
-                    if(this.open) {
-                        this.scrollToBottom();
-                    }
+                    if(this.open) this.scrollToBottom();
                 },
 
                 formatTime(timestamp) {
@@ -221,39 +279,28 @@
                     try {
                         const response = await fetch('{{ route('chat.fetch') }}');
                         const data = await response.json();
-                        
                         if (data.status === 'success') {
                             const newMessages = data.messages || [];
-                            
-                            // Check ID not just length to be safe
                             if (newMessages.length !== this.messages.length) {
                                 this.messages = newMessages;
-                                
-                                // SMART MODE: If we have history, switch to chat automatically
                                 if(this.messages.length > 0 && this.mode === 'menu') {
                                     this.mode = 'chat';
                                     localStorage.setItem('socboost_chat_mode', 'chat');
                                 }
-
                                 if(this.open) {
                                     this.scrollToBottom();
                                 } else {
-                                    // Make sure it's not our own message triggering badge
                                     const lastMsg = this.messages[this.messages.length - 1];
-                                    if(lastMsg.role === 'admin') {
-                                        this.hasUnread = true;
-                                    }
+                                    if(lastMsg.role === 'admin') this.hasUnread = true;
                                 }
                             }
                         }
-                    } catch (e) {
-                         // Silent fail
-                    }
+                    } catch (e) {}
                 },
 
                 selectOption(option) {
                     if (option === 'order') {
-                        this.messages.push({ role: 'admin', message: "You can check your order status in the 'Recent Activity' table on your dashboard.", timestamp: Date.now()/1000 });
+                        this.messages.push({ role: 'admin', message: "You can check your order status in the 'My Orders' table on your dashboard.", timestamp: Date.now()/1000 });
                         this.scrollToBottom();
                     } else if (option === 'payment') {
                         this.messages.push({ role: 'admin', message: "If your payment failed, please try checking out again using a different method.", timestamp: Date.now()/1000 });
@@ -270,18 +317,13 @@
                 async sendMessage() {
                     const text = this.inputText.trim();
                     if (!text) return;
-
-                    // Optimistic update
                     this.messages.push({ role: 'user', message: text, timestamp: Date.now()/1000 });
                     this.inputText = '';
                     this.scrollToBottom();
-                    
-                    // Switch to chat mode if not already (safeguard)
                     if(this.mode !== 'chat') {
                         this.mode = 'chat';
                         localStorage.setItem('socboost_chat_mode', 'chat');
                     }
-
                     try {
                         const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                         await fetch('{{ route('chat.send') }}', {
@@ -289,7 +331,6 @@
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
                             body: JSON.stringify({ message: text })
                         });
-                        // Fetch loop will sync
                     } catch(e) { console.error(e); }
                 },
 
@@ -302,4 +343,5 @@
             }))
         })
     </script>
-</x-app-layout>
+</body>
+</html>

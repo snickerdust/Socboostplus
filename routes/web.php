@@ -14,6 +14,13 @@ Route::get('/products/facebook', [App\Http\Controllers\ProductController::class,
 Route::get('/products/instagram', [App\Http\Controllers\ProductController::class, 'instagram'])->name('products.instagram');
 Route::get('/products/tiktok', [App\Http\Controllers\ProductController::class, 'tiktok'])->name('products.tiktok');
 
+// Static Pages
+Route::view('/about-us', 'about')->name('about');
+Route::view('/terms', 'terms')->name('terms');
+Route::view('/privacy', 'privacy')->name('privacy');
+Route::view('/contact', 'contact')->name('contact');
+Route::view('/refund-policy', 'refund-policy')->name('refund-policy');
+
 Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/pay', [CheckoutController::class, 'pay'])->name('checkout.pay');

@@ -199,10 +199,10 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
                 <template x-if="quality === 'standard'">
                     <div class="contents">
-                        @forelse($products['followers'] ?? [] as $index => $product)
+                        @forelse($products['followers']['high_quality'] ?? [] as $index => $product)
                         <div 
-                             @click="selectedProduct = { id: 'tiktok-followers-{{ $index }}', price: {{ $product['price'] }}, savings: {{ number_format($product['price'], 2) }} }"
-                            :class="{ 'ring-4 ring-tt-purple ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-followers-{{ $index }}' }"
+                             @click="selectedProduct = { id: 'tiktok-followers-high_quality-{{ $index }}', price: {{ $product['price'] }}, savings: {{ isset($product['original_price']) ? number_format((float)$product['original_price'] - (float)$product['price'], 2) : 0 }} }"
+                            :class="{ 'ring-4 ring-tt-purple ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-followers-high_quality-{{ $index }}' }"
                             class="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all border-b-4 border-b-tt-purple/20 group relative">
                              <div class="mb-4">
                                 @if($loop->first)
@@ -225,8 +225,17 @@
                             <h3 class="text-xl font-bold mb-1">{{ number_format($product['quantity']) }} Followers</h3>
                             <div class="flex items-baseline gap-2 mb-2">
                                 <span class="text-2xl font-black">${{ $product['price'] }}</span>
+                                @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                    <span class="text-sm font-bold text-zinc-400 line-through decoration-red-500/30">${{ $product['original_price'] }}</span>
+                                @endif
                             </div>
-                            <p class="text-sm text-green-600 font-bold mb-4">Instant Start</p>
+                            @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                            <p class="text-sm text-green-600 font-bold mb-4">
+                                Save {{ round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) }}% OFF
+                            </p>
+                            @else
+                                <p class="text-sm text-green-600 font-bold mb-4">Instant Start</p>
+                            @endif
                             <ul class="text-sm text-zinc-500 space-y-2 mb-6">
                                 <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tt-purple text-sm font-bold">check_circle</span> Instant Start</li>
                                 <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tt-purple text-sm font-bold">check_circle</span> No Password</li>
@@ -240,21 +249,47 @@
                  <!-- Premium Mock -->
                  <template x-if="quality === 'premium'">
                      <div class="contents">
-                         @forelse($products['followers_premium'] ?? [] as $index => $product)
+                         @forelse($products['followers']['premium'] ?? [] as $index => $product)
                             <div 
-                                @click="selectedProduct = { id: 'tiktok-followers_premium-{{ $index }}', price: {{ $product['price'] }}, savings: {{ number_format($product['price'], 2) }} }"
-                                :class="{ 'ring-4 ring-yellow-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-followers_premium-{{ $index }}' }"
+                                @click="selectedProduct = { id: 'tiktok-followers-premium-{{ $index }}', price: {{ $product['price'] }}, savings: {{ isset($product['original_price']) ? number_format((float)$product['original_price'] - (float)$product['price'], 2) : 0 }} }"
+                                :class="{ 'ring-4 ring-yellow-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-followers-premium-{{ $index }}' }"
                                 class="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all border-b-4 border-b-yellow-500/20 group relative">
-                                <div class="mb-4"><span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-500/10 px-2 py-1 rounded">PREMIUM</span></div>
+                                <div class="mb-4">
+                                    @if($loop->first)
+                                        <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">STARTER</span>
+                                    @elseif($loop->iteration == 2)
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">POPULAR</span>
+                                    @elseif($loop->last)
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">ULTIMATE</span>
+                                    @else
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">VALUE</span>
+                                    @endif
+                                </div>
                                 <!-- Selection Checkmark -->
-                                <div x-show="selectedProduct?.id === 'tiktok-followers_premium-{{ $index }}'" class="absolute top-4 right-4 bg-yellow-500 text-white rounded-full p-1 shadow-lg" style="display: none;">
+                                <div x-show="selectedProduct?.id === 'tiktok-followers-premium-{{ $index }}'" class="absolute top-4 right-4 bg-yellow-500 text-white rounded-full p-1 shadow-lg" style="display: none;">
                                     <span class="material-symbols-outlined text-sm font-bold">check</span>
                                 </div>
                                 <div class="aspect-square w-full bg-yellow-500/10 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center">
                                     <span class="material-symbols-outlined text-5xl text-yellow-500/60 group-hover:scale-110 transition-transform">workspace_premium</span>
                                 </div>
-                                <h3 class="text-xl font-bold">{{ number_format($product['quantity']) }} Followers</h3>
-                                <div class="flex items-baseline gap-2 mb-2"><span class="text-2xl font-black">${{ $product['price'] }}</span></div>
+                                <h3 class="text-xl font-bold mb-1">{{ number_format($product['quantity']) }} Followers</h3>
+                                <div class="flex items-baseline gap-2 mb-2">
+                                    <span class="text-2xl font-black">${{ $product['price'] }}</span>
+                                    @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                        <span class="text-sm font-bold text-zinc-400 line-through decoration-red-500/30">${{ $product['original_price'] }}</span>
+                                    @endif
+                                </div>
+                                @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                <p class="text-sm text-green-600 font-bold mb-4">
+                                    Save {{ round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) }}% OFF
+                                </p>
+                                @else
+                                    <p class="text-sm text-yellow-600 font-bold mb-4">Premium Quality</p>
+                                @endif
+                                <ul class="text-sm text-zinc-500 space-y-2 mb-6">
+                                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-yellow-500 text-sm font-bold">check_circle</span> Real Active Profiles</li>
+                                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-yellow-500 text-sm font-bold">check_circle</span> Non-Drop Guarantee</li>
+                                </ul>
                            </div>
                          @empty
                             <div class="col-span-full text-center py-10 text-zinc-500">No premium followers packages available.</div>
@@ -299,22 +334,45 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
                 <template x-if="quality === 'standard'">
                     <div class="contents">
-                        @forelse($products['likes'] ?? [] as $index => $product)
+                        @forelse($products['likes']['high_quality'] ?? [] as $index => $product)
                          <div 
-                             @click="selectedProduct = { id: 'tiktok-likes-{{ $index }}', price: {{ $product['price'] }}, savings: {{ number_format($product['price'], 2) }} }"
-                            :class="{ 'ring-4 ring-tt-cyan ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-likes-{{ $index }}' }"
+                             @click="selectedProduct = { id: 'tiktok-likes-high_quality-{{ $index }}', price: {{ $product['price'] }}, savings: {{ isset($product['original_price']) ? number_format((float)$product['original_price'] - (float)$product['price'], 2) : 0 }} }"
+                            :class="{ 'ring-4 ring-tt-cyan ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-likes-high_quality-{{ $index }}' }"
                             class="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all border-b-4 border-b-tt-cyan/20 group relative">
-                            <div class="mb-4"><span class="text-xs font-bold uppercase tracking-wider text-tt-cyan bg-tt-cyan/10 px-2 py-1 rounded">LIKES</span></div>
+                            <div class="mb-4">
+                                @if($loop->first)
+                                    <span class="text-xs font-bold uppercase tracking-wider text-tt-cyan bg-tt-cyan/10 px-2 py-1 rounded">STARTER</span>
+                                @elseif($loop->iteration == 2)
+                                     <span class="text-xs font-bold uppercase tracking-wider text-tt-pink bg-tt-pink/10 px-2 py-1 rounded">POPULAR</span>
+                                @elseif($loop->last)
+                                     <span class="text-xs font-bold uppercase tracking-wider text-tt-purple bg-tt-purple/10 px-2 py-1 rounded">ULTIMATE</span>
+                                @else
+                                     <span class="text-xs font-bold uppercase tracking-wider text-tt-cyan bg-tt-cyan/10 px-2 py-1 rounded">VALUE</span>
+                                @endif
+                            </div>
                              <!-- Selection Checkmark -->
-                             <div x-show="selectedProduct?.id === 'tiktok-likes-{{ $index }}'" class="absolute top-4 right-4 bg-tt-cyan text-white rounded-full p-1 shadow-lg" style="display: none;">
+                             <div x-show="selectedProduct?.id === 'tiktok-likes-high_quality-{{ $index }}'" class="absolute top-4 right-4 bg-tt-cyan text-white rounded-full p-1 shadow-lg" style="display: none;">
                                 <span class="material-symbols-outlined text-sm font-bold">check</span>
                             </div>
                             <div class="aspect-square w-full bg-zinc-50 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center"><span class="material-symbols-outlined text-5xl text-tt-cyan/40 group-hover:scale-110 transition-transform">thumb_up</span></div>
                             <h3 class="text-xl font-bold mb-1">{{ number_format($product['quantity']) }} Likes</h3>
                             <div class="flex items-baseline gap-2 mb-2">
                                 <span class="text-2xl font-black">${{ $product['price'] }}</span>
+                                @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                    <span class="text-sm font-bold text-zinc-400 line-through decoration-red-500/30">${{ $product['original_price'] }}</span>
+                                @endif
                             </div>
-                            <p class="text-sm text-green-600 font-bold mb-4">Instant Delivery</p>
+                            @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                            <p class="text-sm text-green-600 font-bold mb-4">
+                                Save {{ round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) }}% OFF
+                            </p>
+                            @else
+                                <p class="text-sm text-green-600 font-bold mb-4">High Quality</p>
+                            @endif
+                            <ul class="text-sm text-zinc-500 space-y-2 mb-6">
+                                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tt-cyan text-sm font-bold">check_circle</span> Instant Start</li>
+                                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tt-cyan text-sm font-bold">check_circle</span> No Password</li>
+                            </ul>
                         </div>
                         @empty
                             <div class="col-span-full text-center py-10 text-zinc-500">No likes packages available at the moment.</div>
@@ -323,21 +381,47 @@
                 </template>
                  <template x-if="quality === 'premium'">
                      <div class="contents">
-                         @forelse($products['likes_premium'] ?? [] as $index => $product)
+                         @forelse($products['likes']['premium'] ?? [] as $index => $product)
                             <div 
-                                @click="selectedProduct = { id: 'tiktok-likes_premium-{{ $index }}', price: {{ $product['price'] }}, savings: {{ number_format($product['price'], 2) }} }"
-                                :class="{ 'ring-4 ring-yellow-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-likes_premium-{{ $index }}' }"
+                                @click="selectedProduct = { id: 'tiktok-likes-premium-{{ $index }}', price: {{ $product['price'] }}, savings: {{ isset($product['original_price']) ? number_format((float)$product['original_price'] - (float)$product['price'], 2) : 0 }} }"
+                                :class="{ 'ring-4 ring-yellow-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-likes-premium-{{ $index }}' }"
                                 class="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all border-b-4 border-b-yellow-500/20 group relative">
-                                <div class="mb-4"><span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-500/10 px-2 py-1 rounded">PREMIUM</span></div>
-                                 <!-- Selection Checkmark -->
-                                <div x-show="selectedProduct?.id === 'tiktok-likes_premium-{{ $index }}'" class="absolute top-4 right-4 bg-yellow-500 text-white rounded-full p-1 shadow-lg" style="display: none;">
+                                <div class="mb-4">
+                                    @if($loop->first)
+                                        <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">STARTER</span>
+                                    @elseif($loop->iteration == 2)
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">POPULAR</span>
+                                    @elseif($loop->last)
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">ULTIMATE</span>
+                                    @else
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">VALUE</span>
+                                    @endif
+                                </div>
+                                <!-- Selection Checkmark -->
+                                <div x-show="selectedProduct?.id === 'tiktok-likes-premium-{{ $index }}'" class="absolute top-4 right-4 bg-yellow-500 text-white rounded-full p-1 shadow-lg" style="display: none;">
                                     <span class="material-symbols-outlined text-sm font-bold">check</span>
                                 </div>
                                 <div class="aspect-square w-full bg-yellow-500/10 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center">
                                     <span class="material-symbols-outlined text-5xl text-yellow-500/60 group-hover:scale-110 transition-transform">workspace_premium</span>
                                 </div>
-                                <h3 class="text-xl font-bold">{{ number_format($product['quantity']) }} Likes</h3>
-                                <div class="flex items-baseline gap-2 mb-2"><span class="text-2xl font-black">${{ $product['price'] }}</span></div>
+                                <h3 class="text-xl font-bold mb-1">{{ number_format($product['quantity']) }} Likes</h3>
+                                <div class="flex items-baseline gap-2 mb-2">
+                                    <span class="text-2xl font-black">${{ $product['price'] }}</span>
+                                    @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                        <span class="text-sm font-bold text-zinc-400 line-through decoration-red-500/30">${{ $product['original_price'] }}</span>
+                                    @endif
+                                </div>
+                                @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                <p class="text-sm text-green-600 font-bold mb-4">
+                                    Save {{ round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) }}% OFF
+                                </p>
+                                @else
+                                    <p class="text-sm text-yellow-600 font-bold mb-4">Premium Quality</p>
+                                @endif
+                                <ul class="text-sm text-zinc-500 space-y-2 mb-6">
+                                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-yellow-500 text-sm font-bold">check_circle</span> Reach Boost</li>
+                                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-yellow-500 text-sm font-bold">check_circle</span> Real Users</li>
+                                </ul>
                            </div>
                          @empty
                             <div class="col-span-full text-center py-10 text-zinc-500">No premium likes packages available.</div>
@@ -382,16 +466,24 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
                  <template x-if="quality === 'standard'">
                     <div class="contents">
-                        @forelse($products['shares'] ?? [] as $index => $product)
+                        @forelse($products['shares']['high_quality'] ?? [] as $index => $product)
                         <div 
-                             @click="selectedProduct = { id: 'tiktok-shares-{{ $index }}', price: {{ $product['price'] }}, savings: {{ number_format($product['price'], 2) }} }"
-                            :class="{ 'ring-4 ring-tt-purple ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-shares-{{ $index }}' }"
+                             @click="selectedProduct = { id: 'tiktok-shares-high_quality-{{ $index }}', price: {{ $product['price'] }}, savings: {{ isset($product['original_price']) ? number_format((float)$product['original_price'] - (float)$product['price'], 2) : 0 }} }"
+                            :class="{ 'ring-4 ring-tt-purple ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-shares-high_quality-{{ $index }}' }"
                             class="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all border-b-4 border-b-tt-purple/20 group relative">
                             <div class="mb-4">
-                                <span class="text-xs font-bold uppercase tracking-wider text-tt-purple bg-tt-purple/10 px-2 py-1 rounded">SHARES</span>
+                                @if($loop->first)
+                                    <span class="text-xs font-bold uppercase tracking-wider text-tt-purple bg-tt-purple/10 px-2 py-1 rounded">STARTER</span>
+                                @elseif($loop->iteration == 2)
+                                     <span class="text-xs font-bold uppercase tracking-wider text-tt-pink bg-tt-pink/10 px-2 py-1 rounded">POPULAR</span>
+                                @elseif($loop->last)
+                                     <span class="text-xs font-bold uppercase tracking-wider text-tt-cyan bg-tt-cyan/10 px-2 py-1 rounded">ULTIMATE</span>
+                                @else
+                                     <span class="text-xs font-bold uppercase tracking-wider text-tt-purple bg-tt-purple/10 px-2 py-1 rounded">VALUE</span>
+                                @endif
                             </div>
                              <!-- Selection Checkmark -->
-                             <div x-show="selectedProduct?.id === 'tiktok-shares-{{ $index }}'" class="absolute top-4 right-4 bg-tt-purple text-white rounded-full p-1 shadow-lg" style="display: none;">
+                             <div x-show="selectedProduct?.id === 'tiktok-shares-high_quality-{{ $index }}'" class="absolute top-4 right-4 bg-tt-purple text-white rounded-full p-1 shadow-lg" style="display: none;">
                                 <span class="material-symbols-outlined text-sm font-bold">check</span>
                             </div>
                             <div class="aspect-square w-full bg-zinc-50 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center">
@@ -400,8 +492,21 @@
                             <h3 class="text-xl font-bold mb-1">{{ number_format($product['quantity']) }} Shares</h3>
                             <div class="flex items-baseline gap-2 mb-2">
                                 <span class="text-2xl font-black">${{ $product['price'] }}</span>
+                                @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                    <span class="text-sm font-bold text-zinc-400 line-through decoration-red-500/30">${{ $product['original_price'] }}</span>
+                                @endif
                             </div>
-                            <p class="text-sm text-green-600 font-bold mb-4">Instant Delivery</p>
+                            @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                            <p class="text-sm text-green-600 font-bold mb-4">
+                                Save {{ round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) }}% OFF
+                            </p>
+                            @else
+                                <p class="text-sm text-green-600 font-bold mb-4">High Quality</p>
+                            @endif
+                            <ul class="text-sm text-zinc-500 space-y-2 mb-6">
+                                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tt-purple text-sm font-bold">check_circle</span> Instant Start</li>
+                                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tt-purple text-sm font-bold">check_circle</span> No Password</li>
+                            </ul>
                         </div>
                         @empty
                             <div class="col-span-full text-center py-10 text-zinc-500">No shares packages available at the moment.</div>
@@ -410,21 +515,47 @@
                 </template>
                  <template x-if="quality === 'premium'">
                      <div class="contents">
-                         @forelse($products['shares_premium'] ?? [] as $index => $product)
+                         @forelse($products['shares']['premium'] ?? [] as $index => $product)
                             <div 
-                                @click="selectedProduct = { id: 'tiktok-shares_premium-{{ $index }}', price: {{ $product['price'] }}, savings: {{ number_format($product['price'], 2) }} }"
-                                :class="{ 'ring-4 ring-yellow-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-shares_premium-{{ $index }}' }"
+                                @click="selectedProduct = { id: 'tiktok-shares-premium-{{ $index }}', price: {{ $product['price'] }}, savings: {{ isset($product['original_price']) ? number_format((float)$product['original_price'] - (float)$product['price'], 2) : 0 }} }"
+                                :class="{ 'ring-4 ring-yellow-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-shares-premium-{{ $index }}' }"
                                 class="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all border-b-4 border-b-yellow-500/20 group relative">
-                                <div class="mb-4"><span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-500/10 px-2 py-1 rounded">PREMIUM</span></div>
-                                 <!-- Selection Checkmark -->
-                                <div x-show="selectedProduct?.id === 'tiktok-shares_premium-{{ $index }}'" class="absolute top-4 right-4 bg-yellow-500 text-white rounded-full p-1 shadow-lg" style="display: none;">
+                                <div class="mb-4">
+                                    @if($loop->first)
+                                        <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">STARTER</span>
+                                    @elseif($loop->iteration == 2)
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">POPULAR</span>
+                                    @elseif($loop->last)
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">ULTIMATE</span>
+                                    @else
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">VALUE</span>
+                                    @endif
+                                </div>
+                                <!-- Selection Checkmark -->
+                                <div x-show="selectedProduct?.id === 'tiktok-shares-premium-{{ $index }}'" class="absolute top-4 right-4 bg-yellow-500 text-white rounded-full p-1 shadow-lg" style="display: none;">
                                     <span class="material-symbols-outlined text-sm font-bold">check</span>
                                 </div>
                                 <div class="aspect-square w-full bg-yellow-500/10 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center">
                                     <span class="material-symbols-outlined text-5xl text-yellow-500/60 group-hover:scale-110 transition-transform">workspace_premium</span>
                                 </div>
-                                <h3 class="text-xl font-bold">{{ number_format($product['quantity']) }} Shares</h3>
-                                <div class="flex items-baseline gap-2 mb-2"><span class="text-2xl font-black">${{ $product['price'] }}</span></div>
+                                <h3 class="text-xl font-bold mb-1">{{ number_format($product['quantity']) }} Shares</h3>
+                                <div class="flex items-baseline gap-2 mb-2">
+                                    <span class="text-2xl font-black">${{ $product['price'] }}</span>
+                                    @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                        <span class="text-sm font-bold text-zinc-400 line-through decoration-red-500/30">${{ $product['original_price'] }}</span>
+                                    @endif
+                                </div>
+                                @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                <p class="text-sm text-green-600 font-bold mb-4">
+                                    Save {{ round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) }}% OFF
+                                </p>
+                                @else
+                                    <p class="text-sm text-yellow-600 font-bold mb-4">Premium Quality</p>
+                                @endif
+                                <ul class="text-sm text-zinc-500 space-y-2 mb-6">
+                                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-yellow-500 text-sm font-bold">check_circle</span> Reach Boost</li>
+                                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-yellow-500 text-sm font-bold">check_circle</span> Viral Potential</li>
+                                </ul>
                            </div>
                          @empty
                             <div class="col-span-full text-center py-10 text-zinc-500">No premium shares packages available.</div>
@@ -469,16 +600,24 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
                 <template x-if="quality === 'standard'">
                     <div class="contents">
-                        @forelse($products['views'] ?? [] as $index => $product)
+                        @forelse($products['views']['high_quality'] ?? [] as $index => $product)
                         <div 
-                             @click="selectedProduct = { id: 'tiktok-views-{{ $index }}', price: {{ $product['price'] }}, savings: {{ number_format($product['price'], 2) }} }"
-                            :class="{ 'ring-4 ring-tt-purple ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-views-{{ $index }}' }"
+                             @click="selectedProduct = { id: 'tiktok-views-high_quality-{{ $index }}', price: {{ $product['price'] }}, savings: {{ isset($product['original_price']) ? number_format((float)$product['original_price'] - (float)$product['price'], 2) : 0 }} }"
+                            :class="{ 'ring-4 ring-tt-purple ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-views-high_quality-{{ $index }}' }"
                             class="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all border-b-4 border-b-tt-purple/20 group relative">
                             <div class="mb-4">
-                                <span class="text-xs font-bold uppercase tracking-wider text-tt-purple bg-tt-purple/10 px-2 py-1 rounded">VIEWS</span>
+                                @if($loop->first)
+                                    <span class="text-xs font-bold uppercase tracking-wider text-tt-purple bg-tt-purple/10 px-2 py-1 rounded">STARTER</span>
+                                @elseif($loop->iteration == 2)
+                                     <span class="text-xs font-bold uppercase tracking-wider text-tt-pink bg-tt-pink/10 px-2 py-1 rounded">POPULAR</span>
+                                @elseif($loop->last)
+                                     <span class="text-xs font-bold uppercase tracking-wider text-tt-cyan bg-tt-cyan/10 px-2 py-1 rounded">ULTIMATE</span>
+                                @else
+                                     <span class="text-xs font-bold uppercase tracking-wider text-tt-purple bg-tt-purple/10 px-2 py-1 rounded">VALUE</span>
+                                @endif
                             </div>
                              <!-- Selection Checkmark -->
-                             <div x-show="selectedProduct?.id === 'tiktok-views-{{ $index }}'" class="absolute top-4 right-4 bg-tt-purple text-white rounded-full p-1 shadow-lg" style="display: none;">
+                             <div x-show="selectedProduct?.id === 'tiktok-views-high_quality-{{ $index }}'" class="absolute top-4 right-4 bg-tt-purple text-white rounded-full p-1 shadow-lg" style="display: none;">
                                 <span class="material-symbols-outlined text-sm font-bold">check</span>
                             </div>
                             <div class="aspect-square w-full bg-zinc-50 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center">
@@ -487,11 +626,20 @@
                             <h3 class="text-xl font-bold mb-1">{{ number_format($product['quantity']) }} Views</h3>
                             <div class="flex items-baseline gap-2 mb-2">
                                 <span class="text-2xl font-black">${{ $product['price'] }}</span>
+                                @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                    <span class="text-sm font-bold text-zinc-400 line-through decoration-red-500/30">${{ $product['original_price'] }}</span>
+                                @endif
                             </div>
-                            <p class="text-sm text-green-600 font-bold mb-4">Instant Start</p>
+                            @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                            <p class="text-sm text-green-600 font-bold mb-4">
+                                Save {{ round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) }}% OFF
+                            </p>
+                            @else
+                                <p class="text-sm text-green-600 font-bold mb-4">High Quality</p>
+                            @endif
                             <ul class="text-sm text-zinc-500 space-y-2 mb-6">
                                 <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tt-purple text-sm font-bold">check_circle</span> Instant Start</li>
-                                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tt-purple text-sm font-bold">check_circle</span> High Retention Rate</li>
+                                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tt-purple text-sm font-bold">check_circle</span> No Password</li>
                             </ul>
                         </div>
                         @empty
@@ -501,21 +649,47 @@
                 </template>
                  <template x-if="quality === 'premium'">
                      <div class="contents">
-                         @forelse($products['views_premium'] ?? [] as $index => $product)
+                         @forelse($products['views']['premium'] ?? [] as $index => $product)
                             <div 
-                                @click="selectedProduct = { id: 'tiktok-views_premium-{{ $index }}', price: {{ $product['price'] }}, savings: {{ number_format($product['price'], 2) }} }"
-                                :class="{ 'ring-4 ring-yellow-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-views_premium-{{ $index }}' }"
+                                @click="selectedProduct = { id: 'tiktok-views-premium-{{ $index }}', price: {{ $product['price'] }}, savings: {{ isset($product['original_price']) ? number_format((float)$product['original_price'] - (float)$product['price'], 2) : 0 }} }"
+                                :class="{ 'ring-4 ring-yellow-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-[1.02] shadow-2xl': selectedProduct?.id === 'tiktok-views-premium-{{ $index }}' }"
                                 class="cursor-pointer bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all border-b-4 border-b-yellow-500/20 group relative">
-                                <div class="mb-4"><span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-500/10 px-2 py-1 rounded">PREMIUM</span></div>
+                                <div class="mb-4">
+                                    @if($loop->first)
+                                        <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">STARTER</span>
+                                    @elseif($loop->iteration == 2)
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">POPULAR</span>
+                                    @elseif($loop->last)
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">ULTIMATE</span>
+                                    @else
+                                         <span class="text-xs font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 px-2 py-1 rounded">VALUE</span>
+                                    @endif
+                                </div>
                                 <!-- Selection Checkmark -->
-                                <div x-show="selectedProduct?.id === 'tiktok-views_premium-{{ $index }}'" class="absolute top-4 right-4 bg-yellow-500 text-white rounded-full p-1 shadow-lg" style="display: none;">
+                                <div x-show="selectedProduct?.id === 'tiktok-views-premium-{{ $index }}'" class="absolute top-4 right-4 bg-yellow-500 text-white rounded-full p-1 shadow-lg" style="display: none;">
                                     <span class="material-symbols-outlined text-sm font-bold">check</span>
                                 </div>
                                 <div class="aspect-square w-full bg-yellow-500/10 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center">
                                     <span class="material-symbols-outlined text-5xl text-yellow-500/60 group-hover:scale-110 transition-transform">workspace_premium</span>
                                 </div>
-                                <h3 class="text-xl font-bold">{{ number_format($product['quantity']) }} Views</h3>
-                                <div class="flex items-baseline gap-2 mb-2"><span class="text-2xl font-black">${{ $product['price'] }}</span></div>
+                                <h3 class="text-xl font-bold mb-1">{{ number_format($product['quantity']) }} Views</h3>
+                                <div class="flex items-baseline gap-2 mb-2">
+                                    <span class="text-2xl font-black">${{ $product['price'] }}</span>
+                                    @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                        <span class="text-sm font-bold text-zinc-400 line-through decoration-red-500/30">${{ $product['original_price'] }}</span>
+                                    @endif
+                                </div>
+                                @if(isset($product['original_price']) && $product['original_price'] > $product['price'])
+                                <p class="text-sm text-green-600 font-bold mb-4">
+                                    Save {{ round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) }}% OFF
+                                </p>
+                                @else
+                                    <p class="text-sm text-yellow-600 font-bold mb-4">Premium Quality</p>
+                                @endif
+                                <ul class="text-sm text-zinc-500 space-y-2 mb-6">
+                                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-yellow-500 text-sm font-bold">check_circle</span> Instant Start</li>
+                                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-yellow-500 text-sm font-bold">check_circle</span> High Retention</li>
+                                </ul>
                            </div>
                          @empty
                             <div class="col-span-full text-center py-10 text-zinc-500">No premium views packages available.</div>

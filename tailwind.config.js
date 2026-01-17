@@ -12,7 +12,20 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                primary: "#000000",
+                "light-bg": "#FFFFFF",
+                "section-bg": "#F8F9FB",
+                "text-charcoal": "#1A1A1E",
+                "text-muted": "#64748B",
+                accent: {
+                    pink: "#FE2C55",
+                    cyan: "#25F4EE",
+                    purple: "#A259FF"
+                },
+                sidebar: "#0F172A"
             },
         },
     },

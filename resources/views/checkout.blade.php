@@ -154,33 +154,44 @@
                     <div class="mb-8">
                         <h3 class="text-xs font-black uppercase tracking-widest text-text-muted mb-4">Quality</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- High Quality (Standard) -->
-                            <button type="button" 
-                                    @click="quality = 'high'"
-                                    :class="quality === 'high' ? 'selected-gradient-border shadow-lg' : 'border border-gray-200 bg-white hover:border-gray-300 shadow-sm'"
-                                    class="group relative p-4 rounded-xl text-left transition-all">
+                            <!-- High Quality Option -->
+                            <div @click="quality = 'high'" 
+                                 x-show="isQualityAvailable('high')"
+                                 :class="quality === 'high' ? 'ring-2 ring-accent-purple bg-accent-purple/5' : 'bg-section-bg border border-gray-100 hover:border-accent-purple/30'"
+                                 class="cursor-pointer p-4 rounded-xl transition-all relative group">
                                 <div class="flex justify-between items-start mb-2">
-                                    <span class="font-bold text-text-charcoal">High Quality</span>
-                                    <span class="text-[10px] font-bold bg-gray-100 px-2 py-0.5 rounded text-text-muted">Standard</span>
+                                    <h3 class="font-bold text-text-charcoal group-hover:text-accent-purple transition-colors">High Quality</h3>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider bg-gray-200 text-text-muted px-2 py-1 rounded">Standard</span>
                                 </div>
-                                <p class="text-xs text-text-muted">Good retention & real looking profiles.</p>
-                            </button>
+                                <p class="text-xs text-text-muted leading-relaxed">Good retention & real looking profiles.</p>
+                                
+                                <div x-show="quality === 'high'" class="absolute top-4 right-4 text-accent-purple transform scale-110">
+                                    <span class="material-symbols-outlined text-xl">check_circle</span>
+                                </div>
+                            </div>
 
-                            <!-- Premium Quality (Upgrade) -->
-                            <button type="button" 
-                                    @click="quality = 'premium'"
-                                    :class="quality === 'premium' ? 'selected-gradient-border shadow-lg' : 'border border-gray-200 bg-white hover:border-gray-300 shadow-sm'"
-                                    class="group relative p-4 rounded-xl text-left transition-all">
+                            <!-- Premium Analysis Option -->
+                            <div @click="quality = 'premium'"
+                                 x-show="isQualityAvailable('premium')"
+                                 :class="quality === 'premium' ? 'ring-2 ring-accent-cyan bg-accent-cyan/5' : 'bg-section-bg border border-gray-100 hover:border-accent-cyan/30'"
+                                 class="cursor-pointer p-4 rounded-xl transition-all relative group">
                                 <div class="flex justify-between items-start mb-2">
-                                    <span class="font-bold text-text-charcoal">Premium Quality</span>
-                                    <span class="text-[10px] font-bold bg-accent-cyan/10 px-2 py-0.5 rounded text-accent-cyan">Best Choice</span>
+                                    <h3 class="font-bold text-text-charcoal group-hover:text-accent-cyan transition-colors">Premium Quality</h3>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider bg-accent-cyan/10 text-accent-cyan px-2 py-1 rounded">Best Choice</span>
                                 </div>
-                                <p class="text-xs text-text-muted">Top tier retention, active profiles & priority support.</p>
-                            </button>
+                                <p class="text-xs text-text-muted leading-relaxed">Top tier retention, active profiles & priority support.</p>
+
+                                <div x-show="quality === 'premium'" class="absolute top-4 right-4 text-accent-cyan transform scale-110">
+                                    <span class="material-symbols-outlined text-xl">check_circle</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-section-bg rounded-xl p-4 flex items-center justify-between border border-gray-100 shadow-sm">
+                    <div x-show="showRefillProtection" class="bg-section-bg rounded-xl p-4 flex items-center justify-between border border-gray-100 shadow-sm transition-all duration-300"
+                          x-transition:enter="transition ease-out duration-300"
+                          x-transition:enter-start="opacity-0 transform scale-95"
+                          x-transition:enter-end="opacity-100 transform scale-100">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
                                 <span class="material-symbols-outlined text-emerald-600">verified_user</span>
@@ -214,7 +225,7 @@
                             <select x-model="selectedCategoryKey"
                                     class="w-full bg-section-bg border border-gray-200 rounded-xl px-4 py-3 text-text-charcoal font-bold focus:outline-none focus:ring-2 focus:ring-accent-purple/20 transition-all text-sm">
                                 <template x-for="catKey in categoryKeys" :key="catKey">
-                                    <option :value="catKey" x-text="formatCategoryName(catKey)"></option>
+                                    <option :value="catKey" x-text="formatCategoryName(catKey)" :selected="catKey === selectedCategoryKey"></option>
                                 </template>
                             </select>
                         </div>
@@ -222,10 +233,10 @@
                         {{-- Package Dropdown --}}
                         <div>
                             <label class="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Package Size</label>
-                            <select x-model="selectedProductIndex"
+                            <select x-model.number="selectedProductIndex"
                                     class="w-full bg-section-bg border border-gray-200 rounded-xl px-4 py-3 text-text-charcoal font-bold focus:outline-none focus:ring-2 focus:ring-accent-purple/20 transition-all text-sm">
                                 <template x-for="(prod, index) in currentCategoryProducts" :key="index">
-                                    <option :value="index" x-text="formatProductName(prod)"></option>
+                                    <option :value="index" x-text="formatProductName(prod)" :selected="index === selectedProductIndex"></option>
                                 </template>
                             </select>
                         </div>
@@ -235,12 +246,7 @@
                                 <span class="text-text-muted">Base Price</span>
                                 <span class="text-text-charcoal font-semibold" x-text="'$' + formatPrice(basePrice)"></span>
                             </div>
-                            <template x-if="quality === 'premium'">
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-text-muted">Premium Quality</span>
-                                    <span class="text-accent-cyan font-semibold">+$15.00</span>
-                                </div>
-                            </template>
+                            <!-- Removed Premium Quality line item as it's included in base price now -->
                              <template x-if="protection">
                                 <div class="flex justify-between items-center text-sm">
                                     <span class="text-text-muted">Refill Protection</span>
@@ -374,16 +380,86 @@
             offers: config.offers || [],
             
             // State
-            quality: config.initialQuality || 'standard', // 'standard' or 'premium'
+            quality: config.initialQuality || 'high', // 'high' or 'premium'
             protection: false,
             email: '',
 
             selectedPlatform: config.initialPlatform,
             selectedCategory: config.initialCategory,
-            selectedProductIndex: parseInt(config.initialId.split('-')[2]) || 0, // Points to the index within the specific category array
+            selectedProductIndex: parseInt(config.initialId.split('-').pop()) || 0, 
+
+            selectedCategoryKey: '', // Will be init based on platform/category
 
             init() {
-                // No specific init logic needed here as state is initialized directly from config
+                // Set initial key based on server-passed or normalized values
+                this.selectedCategoryKey = `${this.selectedPlatform}|${this.selectedCategory}`;
+
+                this.$nextTick(() => {
+                    // Watch for dropdown changes
+                    this.$watch('selectedCategoryKey', (value) => {
+                        const [plat, cat] = value.split('|');
+                        // Only change if different
+                         if (plat !== this.selectedPlatform || cat !== this.selectedCategory) {
+                            this.selectedPlatform = plat;
+                            this.selectedCategory = cat;
+                            this.selectedProductIndex = 0; // Reset index on category switch
+                        }
+                    });
+
+                    // Ensure we have a valid index when data changes or on load
+                    this.$watch('quality', (newVal, oldVal) => {
+                        // 1. Identify the 'old' list key based on the previous quality value
+                        const oldDataKey = oldVal === 'high' ? 'high_quality' : 'premium';
+                        
+                        // 2. Retrieve the old list from the raw data
+                        const products = this.allPlatformProducts[this.selectedCategory];
+                        const oldList = products ? products[oldDataKey] : [];
+
+                        // 3. Get the quantity of the product that WAS selected
+                        let targetQuantity = 0;
+                        if (oldList && oldList[this.selectedProductIndex]) {
+                            targetQuantity = oldList[this.selectedProductIndex].quantity;
+                        }
+
+                        // 4. Find that quantity in the NEW list
+                        this.$nextTick(() => {
+                           const newProducts = this.currentCategoryProducts;
+                           const matchIndex = newProducts.findIndex(p => p.quantity == targetQuantity);
+                           
+                           if (matchIndex !== -1) {
+                               this.selectedProductIndex = matchIndex;
+                           } else {
+                               this.selectedProductIndex = 0; // Fallback only if no match found
+                           }
+                        });
+                    });
+                    
+                    // Watch for changes in active product logic to handle Refill Protection visibility
+                    this.$watch('activeProduct', (val) => {
+                         // If hidden, disable it (but check existence first)
+                         if (!val || val.quantity < 2500) {
+                             this.protection = false;
+                         }
+                    });
+    
+                    // Validation on init: key casing mismatch fix
+                    // NOTE: Controller now handles normalization but we keep this as Client-side safety
+                    let currentKey = this.selectedCategoryKey;
+                    const availableKeys = this.categoryKeys;
+                    
+                    if (!availableKeys.includes(currentKey)) {
+                        const match = availableKeys.find(k => k.toLowerCase() === currentKey.toLowerCase());
+                        if (match) {
+                           // Update the key, watcher will perform the split update
+                           this.selectedCategoryKey = match;
+                        }
+                    }
+
+                    // Validation on init: if premium selected but not available, fallback
+                    if (this.quality === 'premium' && !this.hasPremiumOption) {
+                        this.quality = 'high';
+                    }
+                });
             },
 
             // Computed property for generating keys for the first dropdown (Platform + Category)
@@ -403,14 +479,26 @@
             },
             set selectedCategoryKey(value) {
                 const [plat, cat] = value.split('|');
-                this.selectedPlatform = plat;
-                this.selectedCategory = cat;
-                this.selectedProductIndex = 0; // Reset to first product when category changes
+                // Only reset index if category actually changes
+                if (plat !== this.selectedPlatform || cat !== this.selectedCategory) {
+                    this.selectedPlatform = plat;
+                    this.selectedCategory = cat;
+                    this.selectedProductIndex = 0; 
+                }
+            },
+
+            get qualityDataKey() {
+                // Map UI state to Data keys
+                return this.quality === 'premium' ? 'premium' : 'high_quality';
             },
 
             get currentCategoryProducts() {
-                if (this.allProducts[this.selectedPlatform] && this.allProducts[this.selectedPlatform][this.selectedCategory]) {
-                    return this.allProducts[this.selectedPlatform][this.selectedCategory];
+                // Access nested structure: platform -> category -> quality_variant
+                if (this.allProducts[this.selectedPlatform] && 
+                    this.allProducts[this.selectedPlatform][this.selectedCategory] &&
+                    this.allProducts[this.selectedPlatform][this.selectedCategory][this.qualityDataKey]) {
+                    
+                    return this.allProducts[this.selectedPlatform][this.selectedCategory][this.qualityDataKey];
                 }
                 return [];
             },
@@ -423,9 +511,45 @@
                 return null;
             },
             
+            get showRefillProtection() {
+                return this.activeProduct && this.activeProduct.quantity >= 2500;
+            },
+
+            get allPlatformProducts() {
+                return this.allProducts[this.selectedPlatform] || {};
+            },
+
+            hasPremiumOption() {
+               // Check if current category has ANY premium products (general check)
+               const products = this.allPlatformProducts[this.selectedCategory];
+               return products && products['premium'] && products['premium'].length > 0;
+            },
+
+            // Check if a specific quality tier supports the CURRENT quantity
+            isQualityAvailable(targetQuality) {
+                if (!this.activeProduct) return true; // Safety
+                
+                const currentQty = this.activeProduct.quantity;
+                const products = this.allPlatformProducts[this.selectedCategory];
+                
+                if (!products) return false;
+                
+                // key mapping: 'high' here maps to 'high_quality' in data, 'premium' to 'premium'
+                // handle simple mapping if needed, but data seems to use 'high_quality' and 'premium'
+                // My checks use: this.quality is 'high' or 'premium'.
+                // The data keys are 'high_quality' and 'premium'.
+                
+                const dataKey = targetQuality === 'high' ? 'high_quality' : 'premium';
+                
+                if (!products[dataKey]) return false;
+
+                return products[dataKey].some(p => p.quantity == currentQty);
+            },
+            
             get activeId() {
-                // Reconstruct ID for backend: platform-category-index
-                return `${this.selectedPlatform}-${this.selectedCategory}-${this.selectedProductIndex}`;
+                // Reconstruct ID for backend: platform-category-quality-index
+                // We need to pass enough info for the backend to find it again
+                return `${this.selectedPlatform}-${this.selectedCategory}-${this.qualityDataKey}-${this.selectedProductIndex}`;
             },
 
             get basePrice() {
@@ -433,13 +557,7 @@
             },
 
             get totalPrice() {
-                let total = this.basePrice;
-
-                // Add Premium Quality cost (High Quality is base/free assumption based on design, Premium is upgrade)
-                // Let's assume Premium adds $15.00 like in the previous design
-                if (this.quality === 'premium') {
-                    total += 15.00;
-                }
+                let total = this.basePrice; // Price already includes Quality premium from database
 
                 if (this.protection) {
                     total += 5.00;

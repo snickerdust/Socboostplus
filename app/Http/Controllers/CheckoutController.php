@@ -32,23 +32,24 @@ class CheckoutController extends Controller
         // Example: instagram-followers-2
         $parts = explode('-', $id);
         
-        if (count($parts) !== 3) {
+        $quality = 'high_quality'; // Default
+
+        if (count($parts) === 3) {
+            // Legacy/Short format: platform-category-index -> assume high_quality
+            [$platform, $category, $index] = $parts;
+        } elseif (count($parts) === 4) {
+            // New format: platform-category-quality-index
+            [$platform, $category, $quality, $index] = $parts;
+        } else {
             abort(404, 'Invalid product identifier');
         }
 
-        [$platform, $category, $index] = $parts;
-
-        // Logic adjustment: If category is 'premium', map to standard + premium flag
-        $quality = $request->input('quality', 'standard'); // Default or from URL
-
-        if (str_ends_with($category, '_premium')) {
-            $category = str_replace('_premium', '', $category);
-            $quality = 'premium';
-            // Reconstruct ID to point to standard product
-            $id = $platform . '-' . $category . '-' . $index;
-        }
+        // Normalize quality key from URL/Input
+        $inputQuality = $request->input('quality');
+        if ($inputQuality === 'premium') $quality = 'premium';
+        if ($quality === 'high') $quality = 'high_quality';
         
-        $product = $this->productService->getProduct($platform, $category, (int)$index);
+        $product = $this->productService->getProduct($platform, $category, $quality, (int)$index);
 
         if (!$product) {
             abort(404, 'Product not found');
@@ -56,16 +57,51 @@ class CheckoutController extends Controller
 
         // Get ALL products for this platform, grouped by category
         // This allows the user to switch to "Instagram Likes" from "Instagram Followers"
-        $allPlatformProducts = $this->productService->getAllProducts()[$platform] ?? [];
         $allProducts = $this->productService->getAllProducts();
+        
+        // --- CASE SENSITIVITY FIX --- 
+        // Normalize $platform and $category to match keys in $allProducts exactly
+        // Example: URL has 'instagram', DB has 'Instagram'
+        
+        // 1. Normalize Platform
+        $foundPlatform = false;
+        foreach (array_keys($allProducts) as $dbPlatform) {
+            if (strcasecmp($dbPlatform, $platform) === 0) {
+                // If match found (case-insensitive), use the DB key
+                $platform = $dbPlatform; 
+                $foundPlatform = true;
+                break;
+            }
+        }
+        
+        // 2. Normalize Category (only if platform found)
+        if ($foundPlatform && isset($allProducts[$platform])) {
+             foreach (array_keys($allProducts[$platform]) as $dbCategory) {
+                if (strcasecmp($dbCategory, $category) === 0) {
+                    $category = $dbCategory;
+                    break;
+                }
+            }
+        }
+        
+        // Re-fetch platform products with corrected key
+        $allPlatformProducts = $allProducts[$platform] ?? [];
 
         $flatProducts = [];
-        foreach ($allPlatformProducts as $cat => $items) {
-            foreach ($items as $idx => $item) {
-                $itemId = $platform . '-' . $cat . '-' . $idx;
-                $item['id'] = $itemId;
-                $item['name'] = number_format($item['quantity']) . ' ' . str_replace('_', ' ', $cat);
-                $flatProducts[$itemId] = $item;
+        foreach ($allPlatformProducts as $cat => $qualities) {
+            // $qualities is now array ['high_quality' => [...], 'premium' => [...]]
+            if (!is_array($qualities)) continue;
+
+            foreach ($qualities as $qualKey => $items) {
+                if (!is_array($items)) continue;
+
+                foreach ($items as $idx => $item) {
+                    // ID: platform-category-quality-index
+                    $itemId = $platform . '-' . $cat . '-' . $qualKey . '-' . $idx;
+                    $item['id'] = $itemId;
+                    $item['name'] = number_format($item['quantity']) . ' ' . str_replace('_', ' ', $cat) . ' (' . str_replace('_', ' ', $qualKey) . ')';
+                    $flatProducts[$itemId] = $item;
+                }
             }
         }
 
@@ -104,7 +140,7 @@ class CheckoutController extends Controller
             'id' => $id,
             'platform' => $platform,
             'category' => $category,
-            'initialQuality' => $quality
+            'initialQuality' => $quality === 'high_quality' ? 'high' : $quality
         ]);
 
     }

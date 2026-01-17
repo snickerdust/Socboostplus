@@ -535,56 +535,58 @@
             </a>
 </div>
 </section>
-<footer class="bg-white border-t border-slate-100 pt-24 pb-48">
-<div class="max-w-7xl mx-auto px-6">
-<div class="grid grid-cols-2 md:grid-cols-5 gap-12 mb-24">
+<footer class="border-t border-slate-100 py-16 px-6 bg-white">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
+<div class="max-w-xs">
+<div class="flex items-center gap-3 mb-6">
+<div class="text-black">
+<span class="material-symbols-outlined text-3xl">verified_user</span>
+</div>
+<span class="text-xl font-bold uppercase tracking-tighter text-black">SocBoost<span class="text-accent-pink">+</span></span>
+</div>
+<p class="text-xs text-slate-500 leading-relaxed font-medium">
+                The disciplined infrastructure for social proof. Built for brands that value account safety and professional standards.
+            </p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-12">
+<div>
+<h5 class="text-[10px] font-black mb-4 uppercase tracking-widest text-slate-900">Core</h5>
+<ul class="space-y-2 text-xs text-slate-500 font-semibold">
+<li><a class="hover:text-accent-pink transition-colors" href="{{ route('about') }}">About Us</a></li>
+<li><a class="hover:text-accent-pink transition-colors" href="#">System Status</a></li>
+<li><a class="hover:text-accent-purple transition-colors" href="#">Ethics Code</a></li>
+<li><a class="hover:text-accent-cyan transition-colors" href="#">Risk Disclosure</a></li>
+</ul>
+</div>
+<div>
+<h5 class="text-[10px] font-black mb-4 uppercase tracking-widest text-slate-900">Help</h5>
+<ul class="space-y-2 text-xs text-slate-500 font-semibold">
+<li><a class="hover:text-slate-900 transition-colors" href="{{ route('contact') }}">Contact Us</a></li>
+<li><a class="hover:text-slate-900 transition-colors" href="{{ route('refund-policy') }}">Refund Policy</a></li>
+<li><a class="hover:text-slate-900 transition-colors" href="#">FAQ</a></li>
+<li><a class="hover:text-slate-900 transition-colors" href="{{ route('terms') }}">Terms of Service</a></li>
+<li><a class="hover:text-slate-900 transition-colors" href="{{ route('privacy') }}">Privacy Policy</a></li>
+</ul>
+</div>
 <div class="col-span-2 md:col-span-1">
-<span class="text-xl font-bold tracking-tighter">SocBoost<span class="text-accent-pink">+</span></span>
-<p class="mt-6 text-sm text-slate-500 leading-relaxed font-medium">
-                        Professional-grade growth infrastructure for high-authority brands and creators.
-                    </p>
-</div>
-<div>
-<h5 class="font-bold mb-6 text-xs uppercase tracking-widest text-slate-400">Payment &amp; Security</h5>
-<ul class="space-y-4 text-sm font-medium text-slate-600">
-<li>Crypto (BTC/ETH/USDT)</li>
-<li>SSL Secure</li>
-</ul>
-</div>
-<div>
-<h5 class="font-bold mb-6 text-xs uppercase tracking-widest text-slate-400">Support</h5>
-<ul class="space-y-4 text-sm font-medium text-slate-600">
-<li><a class="hover:text-primary transition-colors" href="#">24/7 Live Chat</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
-</ul>
-</div>
-<div>
-<h5 class="font-bold mb-6 text-xs uppercase tracking-widest text-slate-400">Transparency</h5>
-<ul class="space-y-4 text-sm font-medium text-slate-600">
-<li><a class="hover:text-primary transition-colors" href="#">Refill Policy</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">Refund Terms</a></li>
-</ul>
-</div>
-<div>
-<h5 class="font-bold mb-6 text-xs uppercase tracking-widest text-slate-400">Company</h5>
-<ul class="space-y-4 text-sm font-medium text-slate-600">
-<li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">Legal Terms</a></li>
-</ul>
+<h5 class="text-[10px] font-black mb-4 uppercase tracking-widest text-slate-900">Protocol</h5>
+<div class="flex gap-2">
+<input class="bg-slate-50 border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-accent-purple w-full font-medium p-2.5" placeholder="Alerts email" type="email"/>
+<button class="bg-black text-white p-2.5 rounded-lg hover:bg-slate-800 transition-colors shadow-lg">
+<span class="material-symbols-outlined text-sm">notifications</span>
+</button>
 </div>
 </div>
-<div class="pt-12 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
-<p>© 2024 SOCBOOST+ INTERNATIONAL. BUILT FOR ACCOUNT INTEGRITY.</p>
 </div>
 </div>
+<div class="max-w-7xl mx-auto mt-16 pt-8 border-t border-slate-100 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+        © 2024 SocBoost+ Infrastructure Group. Independently operated. Not affiliated with TikTok or Meta.
+    </div>
 </footer>
 <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-2xl">
 <div class="bg-white/90 backdrop-blur-xl border border-slate-200/50 p-2 rounded-full shadow-2xl flex items-center justify-between">
 <div class="flex items-center ml-4">
 <div class="flex -space-x-3 mr-4">
-<div class="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden"><img alt="User 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAw1XyLkK_wwzbOFxBCp2az2rvoVaIS3WWM_67z9MW7e3Qy2MnG0l6leamzvYuxZpw1Ki_02GBwsf9529jJFvKyQBvwiOs5lGCsHBvNK_rPpcxSXaAV2ELPE7mHjJ3lPQlQ0X8qbcSorcc0J7PnxdlWvW03nU_eirqC2saCOOKBbfwmHpAaTug2OB3uT_3eudgKe4sjkA_CtTmYjz7199hL9oOKAfrIaGBkm8aFUrVBNjKx5gEvUjHFR6j-okzT3Qk_WDum0bQnaUo"/></div>
-<div class="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden"><img alt="User 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYnVbtJ8XWqEP9eB2Humwq29PLWkEJxmxZKAu-6N9BZ_kj05D9Doq-bBHDoNk4mRHc0dT4PwRbchZlXzH5iLi09uymjhQ4XAmkJDC--54EPJczBTeY4H0w9mS4xAeiRLhvB1UAvfM5M7-yUwguKoE6WijRSIQ22fWP4OCO0ZwUTJkVWAO8xb1qqp6qbQIAvliF4Zn0UQ7RnIW-f5trIIQOceZq7axr3_4TezEa_cX6Gh52avx44Z_QX_CuomsAXsvZy8yLXoNHTII"/></div>
-<div class="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden"><img alt="User 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDTsHg5N5Ks7IptnPesmy4DLSX-jPAFF142v9JIcVBrzJQM4zzQ6szB52jU9m_MOaXkZmmMpLAhGufY4gR5rM9y2SKapJM0btOsV29onby1eZP3xxLcstzyRTkEOdokJexLg13_6DVTfBc64ZRIzjfFcq9GJltOHIiUx-yHhEjmsUH6wr5LGsxFTLPHaN7CxaGF8E2LbqavpoqurXTo0evs9j0ppSVT6x28tn2y9d4Pi3J4c5cIdpuoO-htwTceAAB7KgdhIVFXYc"/></div>
 </div>
 <div class="hidden sm:block">
 <div class="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none mb-1">Live Social Proof</div>

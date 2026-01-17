@@ -30,9 +30,9 @@ class ProductService
         return $snapshot->getValue();
     }
 
-    public function getProduct(string $platform, string $category, int $index): ?array
+    public function getProduct(string $platform, string $category, string $quality, int $index): ?array
     {
         $products = $this->getAllProducts();
-        return $products[$platform][$category][$index] ?? null;
+        return $products[$platform][$category][$quality][$index] ?? null;
     }
 }

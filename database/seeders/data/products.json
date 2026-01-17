@@ -1,0 +1,694 @@
+{
+    "instagram": {
+        "likes": {
+            "high_quality": [
+                {
+                    "quantity": 50,
+                    "original_price": 1.99,
+                    "price": 1.47
+                },
+                {
+                    "quantity": 100,
+                    "original_price": 3.98,
+                    "price": 2.47
+                },
+                {
+                    "quantity": 250,
+                    "original_price": 9.95,
+                    "price": 5.27
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 19.90,
+                    "price": 7.47
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 39.80,
+                    "price": 12.47
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 99.51,
+                    "price": 28.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 199.02,
+                    "price": 49.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 398.05,
+                    "price": 88.47
+                }
+            ],
+            "premium": [
+                {
+                    "quantity": 50,
+                    "original_price": 5.54,
+                    "price": 3.47
+                },
+                {
+                    "quantity": 100,
+                    "original_price": 12.94,
+                    "price": 6.47
+                },
+                {
+                    "quantity": 250,
+                    "original_price": 28.87,
+                    "price": 12.47
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 51.53,
+                    "price": 19.47
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 99.56,
+                    "price": 34.47
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 258.21,
+                    "price": 74.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 499.96,
+                    "price": 124.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 979.99,
+                    "price": 197.47
+                }
+            ]
+        },
+        "followers": {
+            "high_quality": [
+                {
+                    "quantity": 100,
+                    "original_price": 3.63,
+                    "price": 2.97
+                },
+                {
+                    "quantity": 250,
+                    "original_price": 9.07,
+                    "price": 5.47
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 18.15,
+                    "price": 7.47
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 36.30,
+                    "price": 12.47
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 90.75,
+                    "price": 28.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 181.50,
+                    "price": 49.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 363.00,
+                    "price": 88.47
+                },
+                {
+                    "quantity": 20000,
+                    "original_price": 726.00,
+                    "price": 164.47
+                }
+            ],
+            "premium": [
+                {
+                    "quantity": 100,
+                    "original_price": 9.99,
+                    "price": 8.47
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 49.95,
+                    "price": 28.47
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 99.90,
+                    "price": 44.47
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 199.80,
+                    "price": 59.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 349.50,
+                    "price": 87.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 699.00,
+                    "price": 147.47
+                }
+            ]
+        },
+        "reels_views": {
+            "high_quality": [
+                {
+                    "quantity": 500,
+                    "original_price": 2.21,
+                    "price": 1.97
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 9.08,
+                    "price": 6.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 23.42,
+                    "price": 14.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 49.00,
+                    "price": 24.47
+                },
+                {
+                    "quantity": 25000,
+                    "original_price": 131.55,
+                    "price": 47.47
+                },
+                {
+                    "quantity": 50000,
+                    "original_price": 249.00,
+                    "price": 74.47
+                }
+            ],
+            "premium": [
+                {
+                    "quantity": 500,
+                    "original_price": 5.99,
+                    "price": 4.47
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 29.95,
+                    "price": 14.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 59.90,
+                    "price": 33.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 119.80,
+                    "price": 53.47
+                },
+                {
+                    "quantity": 25000,
+                    "original_price": 299.50,
+                    "price": 107.47
+                },
+                {
+                    "quantity": 50000,
+                    "original_price": 599.00,
+                    "price": 157.47
+                }
+            ]
+        },
+        "story_views": {
+            "high_quality": [
+                {
+                    "quantity": 100,
+                    "original_price": 0.84,
+                    "price": 0.80
+                },
+                {
+                    "quantity": 250,
+                    "original_price": 1.06,
+                    "price": 0.95
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 1.71,
+                    "price": 1.45
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 2.81,
+                    "price": 2.25
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 5.40,
+                    "price": 4.05
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 11.07,
+                    "price": 7.75
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 21.92,
+                    "price": 14.25
+                }
+            ]
+        }
+    },
+    "tiktok": {
+        "likes": {
+            "high_quality": [
+                {
+                    "quantity": 50,
+                    "original_price": 1.99,
+                    "price": 1.47
+                },
+                {
+                    "quantity": 100,
+                    "original_price": 3.98,
+                    "price": 2.47
+                },
+                {
+                    "quantity": 250,
+                    "original_price": 9.95,
+                    "price": 5.27
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 19.90,
+                    "price": 7.47
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 39.80,
+                    "price": 12.47
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 99.51,
+                    "price": 28.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 199.02,
+                    "price": 49.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 398.05,
+                    "price": 88.47
+                }
+            ],
+            "premium": [
+                {
+                    "quantity": 100,
+                    "original_price": 6.99,
+                    "price": 5.47
+                },
+                {
+                    "quantity": 250,
+                    "original_price": 13.98,
+                    "price": 8.47
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 34.95,
+                    "price": 17.47
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 69.90,
+                    "price": 27.47
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 139.80,
+                    "price": 45.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 349.50,
+                    "price": 87.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 699.00,
+                    "price": 147.47
+                }
+            ]
+        },
+        "followers": {
+            "high_quality": [
+                {
+                    "quantity": 100,
+                    "original_price": 3.63,
+                    "price": 2.97
+                },
+                {
+                    "quantity": 250,
+                    "original_price": 9.07,
+                    "price": 5.47
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 18.15,
+                    "price": 7.47
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 36.30,
+                    "price": 12.47
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 90.75,
+                    "price": 28.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 181.50,
+                    "price": 49.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 363.00,
+                    "price": 88.47
+                },
+                {
+                    "quantity": 20000,
+                    "original_price": 726.00,
+                    "price": 164.47
+                }
+            ],
+            "premium": [
+                {
+                    "quantity": 100,
+                    "original_price": 9.99,
+                    "price": 8.47
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 49.95,
+                    "price": 28.47
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 99.90,
+                    "price": 44.47
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 199.80,
+                    "price": 59.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 349.50,
+                    "price": 87.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 699.00,
+                    "price": 147.47
+                }
+            ]
+        },
+        "views": {
+            "high_quality": [
+                {
+                    "quantity": 500,
+                    "original_price": 2.21,
+                    "price": 1.99
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 9.08,
+                    "price": 6.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 23.42,
+                    "price": 14.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 49.00,
+                    "price": 24.47
+                },
+                {
+                    "quantity": 25000,
+                    "original_price": 131.55,
+                    "price": 49.47
+                },
+                {
+                    "quantity": 50000,
+                    "original_price": 299.96,
+                    "price": 74.47
+                }
+            ],
+            "premium": [
+                {
+                    "quantity": 1000,
+                    "original_price": 4.99,
+                    "price": 3.47
+                },
+                {
+                    "quantity": 2000,
+                    "original_price": 9.98,
+                    "price": 5.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 24.95,
+                    "price": 10.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 49.99,
+                    "price": 19.47
+                },
+                {
+                    "quantity": 50000,
+                    "original_price": 249.50,
+                    "price": 69.47
+                }
+            ]
+        },
+        "shares": {
+            "high_quality": [
+                {
+                    "quantity": 500,
+                    "original_price": 10.59,
+                    "price": 8.47
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 21.25,
+                    "price": 16.47
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 46.67,
+                    "price": 34.47
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 78.57,
+                    "price": 54.47
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 146.15,
+                    "price": 94.47
+                },
+                {
+                    "quantity": 25000,
+                    "original_price": 291.67,
+                    "price": 174.47
+                },
+                {
+                    "quantity": 50000,
+                    "original_price": 454.55,
+                    "price": 247.47
+                }
+            ]
+        }
+    },
+    "facebook": {
+        "followers": {
+            "high_quality": [
+                {
+                    "quantity": 100,
+                    "original_price": 3.63,
+                    "price": 2.67
+                },
+                {
+                    "quantity": 250,
+                    "original_price": 9.07,
+                    "price": 4.97
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 18.15,
+                    "price": 7.19
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 36.30,
+                    "price": 11.67
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 90.75,
+                    "price": 25.99
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 181.50,
+                    "price": 44.99
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 363.00,
+                    "price": 62.99
+                },
+                {
+                    "quantity": 20000,
+                    "original_price": 726.00,
+                    "price": 89.99
+                }
+            ],
+            "premium": [
+                {
+                    "quantity": 500,
+                    "original_price": 23.98,
+                    "price": 10.49
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 47.97,
+                    "price": 17.49
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 119.92,
+                    "price": 41.49
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 239.85,
+                    "price": 78.49
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 323.50,
+                    "price": 99.49
+                },
+                {
+                    "quantity": 20000,
+                    "original_price": 519.96,
+                    "price": 121.99
+                }
+            ]
+        },
+        "likes": {
+            "high_quality": [
+                {
+                    "quantity": 50,
+                    "original_price": 1.99,
+                    "price": 1.29
+                },
+                {
+                    "quantity": 100,
+                    "original_price": 3.98,
+                    "price": 2.67
+                },
+                {
+                    "quantity": 250,
+                    "original_price": 9.95,
+                    "price": 4.97
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 19.90,
+                    "price": 7.19
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 39.80,
+                    "price": 11.67
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 99.51,
+                    "price": 25.99
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 199.02,
+                    "price": 44.99
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 398.05,
+                    "price": 62.99
+                }
+            ],
+            "premium": [
+                {
+                    "quantity": 50,
+                    "original_price": 5.54,
+                    "price": 3.09
+                },
+                {
+                    "quantity": 100,
+                    "original_price": 12.94,
+                    "price": 6.29
+                },
+                {
+                    "quantity": 250,
+                    "original_price": 28.87,
+                    "price": 11.67
+                },
+                {
+                    "quantity": 500,
+                    "original_price": 51.53,
+                    "price": 17.99
+                },
+                {
+                    "quantity": 1000,
+                    "original_price": 99.56,
+                    "price": 31.49
+                },
+                {
+                    "quantity": 2500,
+                    "original_price": 258.21,
+                    "price": 67.49
+                },
+                {
+                    "quantity": 5000,
+                    "original_price": 499.96,
+                    "price": 112.99
+                },
+                {
+                    "quantity": 10000,
+                    "original_price": 979.99,
+                    "price": 179.99
+                }
+            ]
+        }
+    }
+}

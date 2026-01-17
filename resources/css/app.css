@@ -1,3 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-light-bg text-text-charcoal antialiased;
+    }
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.vibrant-gradient-text {
+    background: linear-gradient(135deg, #FE2C55 0%, #A259FF 50%, #25F4EE 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.pulse-dot {
+    @apply relative flex h-2 w-2;
+}
+
+.pulse-dot-inner {
+    @apply animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75;
+}
+
+.pulse-dot-core {
+    @apply relative inline-flex rounded-full h-2 w-2 bg-orange-500;
+}
